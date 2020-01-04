@@ -13,6 +13,9 @@ implement main0 ()
     stadef is_gt0 = 4
     stadef gt0_notify = 5
     stadef lte0_notify = 6
+    stadef countdown = 7
+    stadef nothing_to_count = 8
+    stadef show_count = 9
 
     stadef document 
       = doctype'
@@ -25,13 +28,21 @@ implement main0 ()
           :*: body'(anil,
                  p'(anil, text'(hello_world) :*: enil)
              :*: OPT'(
-                  p'(anil, text'(gt0_notify) :*: enil) :*: enil, is_gt0
+                  p'(anil, text'(gt0_notify) :*: enil) :*: enil
+                , is_gt0
                 )
              :*: EITHER'(
                   p'(anil, text'(gt0_notify) :*: enil) :*: enil
                 , p'(anil, text'(lte0_notify) :*: enil) :*: enil
                 , is_gt0 
                )
+             :*: ul'(anil,
+                  MANY_OR'(
+                    li'(anil, text'(show_count) :*: enil) :*: enil
+                  , li'(anil, text'(nothing_to_count) :*: enil) :*: enil
+                  , countdown 
+                 ) :*: enil
+                )
              :*: enil
             )
           :*: enil
@@ -41,13 +52,17 @@ implement main0 ()
     html5$out<int>( x, sm ) = print!(UN_mixed_borrow(sm))
 
     implement
-    html5$attr<utf8><int>( x )        = s2m("utf-8")
+    html5$attr<utf8><int>( x )      = s2m("utf-8")
     implement
     html5$attr<en><int>( x )        = s2m("en")
     implement
     html5$text<page_title><int>( x )  = s2m("Hello world")
     implement
     html5$text<hello_world><int>( x ) = s2m("Hello world")
+    implement
+    html5$text<show_count><int>( x ) = strptr2mixed(tostrptr_int(x))
+    implement
+    html5$text<nothing_to_count><int>( x ) = s2m("There is nothing to count!")
     implement
     html5$text<gt0_notify><int>( x ) = s2m("Arg is greater than zero")
     implement
@@ -56,8 +71,12 @@ implement main0 ()
     html5$elm$opt_issome<is_gt0><int>( x ) = x > 0
     implement
     html5$elm$either_isleft<is_gt0><int>( x ) = x > 0
-
-    val () = html5_elm_list_out<document><int>( 0 ) 
+    implement
+    html5$elm$many_has_next<countdown><int>( x ) 
+      = if x > 0 then (x := x - 1; true) else false
+  
+    var x : int = 1000
+    val () = html5_elm_list_out<document><int>( x ) 
 
 
   }

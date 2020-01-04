@@ -467,11 +467,10 @@ implement
 html5_attr_out$kind<_wrap>() = "wrap"
 
 fun {env:vt@ype+}
-html5_out_escaped( env: !env, sm0: !strmixed0 ) : void 
+html5_out_escaped( env: &env, sm0: !strmixed0 ) : void 
   =   {
-      var env0 : env = $UNSAFE.castvwtp1{env}(env)
       val _ 
-        = strmixed_foreach(sm0, env0 ) where {
+        = strmixed_foreach(sm0, env ) where {
             implement
             strmixed_foreach$fwork<env>( c, env ) 
               = {
@@ -497,7 +496,6 @@ html5_out_escaped( env: !env, sm0: !strmixed0 ) : void
 
               }
         }
-    prval () = $UNSAFE.cast2void( env0 )
   } 
 
 implement (env:vt@ype+)
@@ -645,7 +643,7 @@ html5_elm_out<html5_elm_many(xs0,xs1,id)><env>( env )
   where {
     extern
     fun {es: html5_elm }{env:vt@ype+}
-      _html5_elm_out_many( !env, bool ) : void
+      _html5_elm_out_many( &env, bool ) : void
 
     implement (id,xs0,xs1,env:vt@ype+)
     _html5_elm_out_many<html5_elm_many(xs0,xs1,id)><env>( env, b )

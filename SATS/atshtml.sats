@@ -423,23 +423,23 @@ and html5_elm_list =
 
 (** Attr value **)
 fun {id:int}{env:vt@ype+}
-  html5$attr( !env ) : strmixed1
+  html5$attr( &env ) : strmixed1
 
 (** Script text **)
 fun {id:int}{env:vt@ype+}
-  html5$script( !env ) : strmixed1
+  html5$script( &env ) : strmixed1
 
 (** Comment text **)
 fun {id:int}{env:vt@ype+}
-  html5$comment( !env ) : strmixed1
+  html5$comment( &env ) : strmixed1
 
 (** Text **)
 fun {id:int}{env:vt@ype+}
-  html5$text( !env ) : strmixed1
+  html5$text( &env ) : strmixed1
 
 (** Style Text **)
 fun {id:int}{env:vt@ype+}
-  html5$style( !env ) : strmixed1
+  html5$style( &env ) : strmixed1
 
 (** Returns true if we want to display the next elm, false otherwise;
     If it returns false on the first iteration, it will show the 
@@ -457,22 +457,22 @@ fun {id:int}{env:vt@ype+}
 **)
 
 fun {id:int}{env:vt@ype+}
-  html5$attr$either_isleft( !env ) : bool
+  html5$attr$either_isleft( &env ) : bool
 
 fun {id:int}{env:vt@ype+}
-  html5$attr$opt_issome( !env ) : bool
+  html5$attr$opt_issome( &env ) : bool
 
 fun {id:int}{env:vt@ype+}
-  html5$elm$many_has_next( !env ) : bool
+  html5$elm$many_has_next( &env ) : bool
 
 fun {id:int}{env:vt@ype+}
-  html5$elm$either_isleft( !env ) : bool
+  html5$elm$either_isleft( &env ) : bool
 
 fun {id:int}{env:vt@ype+}
-  html5$elm$opt_issome( !env ) : bool
+  html5$elm$opt_issome( &env ) : bool
 
 fun {env:vt@ype+}
-  html5$out( !env, !strmixed1 ) : void
+  html5$out( &env, !strmixed1 ) : void
 
 (** ** ** ** ** **)
 
@@ -480,19 +480,19 @@ fun {es: html5_tag }
   html5_elm_out$tag( ) : string
 
 fun {es: html5_elm }{env:vt@ype+}
-  html5_elm_out( !env ) : void
+  html5_elm_out( &env ) : void
 
 fun {es: html5_attr_kind }
   html5_attr_out$kind( ) : string
 
 fun {es: html5_attr }{env:vt@ype+}
-  html5_attr_out( !env ) : void
+  html5_attr_out( &env ) : void
 
 fun {es: html5_attr_list }{env:vt@ype+}
-  html5_attr_list_out( !env ) : void
+  html5_attr_list_out( &env ) : void
  
 fun {es: html5_elm_list }{env:vt@ype+}
-  html5_elm_list_out( !env ) : void 
+  html5_elm_list_out( &env ) : void 
  
 
  
