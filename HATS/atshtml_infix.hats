@@ -9,9 +9,4 @@ infixr :*:
 #define enil html5_elm_list_nil
 #define :*: html5_elm_list_cons
 
-#define text   html5_elm_text
-#define script html5_elm_script
-#define style  html5_elm_style
-#define comment html5_elm_comment
-
 #endif
