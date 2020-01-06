@@ -1,6 +1,20 @@
 
 #include "./../HATS/project.hats"
 
+(** Inefficient, but useful bitwise ops in the statics **)
+
+stadef has_bit( vec: int, pow2 : int ) : bool =
+   (  (vec / pow2 ) % 2 == 1 )
+
+stadef set_bit( vec: int, pow2 : int ) : int =
+    ( ifint(has_bit(vec,pow2), vec, vec + pow2) )
+
+stadef unset_bit( vec: int, pow2 : int ) : int =
+    ( ifint(has_bit(vec,pow2), vec - pow2, vec ) )
+
+stadef bit_bind ( b:bool, vec:int, pow2:int ) : int =
+    ( ifint(b,set_bit(vec,pow2), unset_bit(vec,pow2)) )
+
 sortdef content_kind = int
 stadef uncategorized     = 0 // includes: document_root
 stadef metadata          = 128
@@ -130,6 +144,41 @@ stadef script_     = 18924//108 + phrasing + flow + metadata + scripting
 stadef noscript_   = 2541 //109 + phrasing + flow + metadata
 stadef template_   = 18926 //110 + phrasing + flow + metadata + scripting
 stadef canvas_     = 6511 //111 + phrasing + flow  + embedded
+
+stadef is_metadata         (tag:html5_tag) : bool
+    = has_bit(tag,metadata)
+
+stadef is_flow             (tag:html5_tag) : bool
+    = has_bit(tag,flow)
+ 
+stadef is_sectioning       (tag:html5_tag) : bool
+    = has_bit(tag,sectioning)
+
+stadef is_heading          (tag:html5_tag) : bool
+    = has_bit(tag,heading)
+
+stadef is_phrasing         (tag:html5_tag) : bool
+    = has_bit(tag,phrasing)
+
+stadef is_embedded         (tag:html5_tag) : bool
+    = has_bit(tag,embedded)
+
+stadef is_interactive      (tag:html5_tag) : bool
+    = has_bit(tag,interactive)
+
+stadef is_scripting        (tag:html5_tag) : bool
+    = has_bit(tag,scripting)
+
+stadef is_transparent ( tag:html5_tag ) : bool
+  = ( tag == ins_ ||
+      tag == del_ ||
+      tag == map_ ||
+      tag == a_ || 
+      tag == canvas_ ||
+      tag == audio_ ||
+      tag == video_ ||
+      tag == noscript_ ||
+      tag == object_ ) 
 
 sortdef html5_attr_kind = int
 

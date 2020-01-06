@@ -4,6 +4,94 @@
 
 #define s2m string2mixed
 
+sortdef html5_ctx = int
+stadef html5_ctx_init = 0
+
+stacst html5_elm_appendable : (html5_ctx, html5_elm, html5_elm) -> bool
+stacst html5_has_attr : (html5_tag, html5_attr_kind) -> bool
+
+dataprop ElmAttrs(tag:html5_tag,ax:html5_attr_list) = 
+  |  ElmAttrsNil(tag,anil)
+  | {attr:html5_attr}{ax:html5_attr_list}
+     ElmAttrsCons(tag, attr :@: ax )
+      of (ElmAttr(tag,attr), ElmAttrs(tag,ax))
+and ElmAttr(html5_tag,html5_attr) =
+  | {id:int}
+    Charset$(meta_, charset$(id))
+
+dataprop ElmChildren(ctx:html5_ctx,par:html5_tag,es:html5_elm_list) =
+  |  ElmChildrenNil(html5_ctx_init,par,enil)
+  |  {par:html5_tag}{ctx0,ctx1:html5_ctx}{chi:html5_elm}{es:html5_elm_list}
+     ElmChildrenCons(ctx0,par,chi :*: es) 
+      of (ElmChild(ctx1,ctx0,par,chi), ElmChildren(ctx1,par,es))
+
+and ElmChild(ctx0:html5_ctx,ctx1:html5_ctx,par:html5_tag,chi:html5_elm) =
+  | {id:int}{ctx0:html5_ctx} 
+    Text'(ctx0,ctx0,par,text'(id)) 
+  | {id:int}{ctx0:html5_ctx} 
+    Comment'(ctx0,ctx0,par,comment'(id))
+  | {ctx0:html5_ctx}{attrs:html5_attr_list}{nodes:html5_elm_list}
+    Head'(ctx0,ctx0,html_,head'(attrs,nodes)) 
+      of (ElmAttrs(head_,attrs), ElmChildren(ctx0,head_,nodes))
+  | {id:int}{ctx0:html5_ctx} 
+    Title'(ctx0,ctx0,head_,title'(id)) 
+  | {ctx0:html5_ctx}{attrs:html5_attr_list} 
+    Base'(ctx0,ctx0,head_,base'(attrs))  of ElmAttrs(base_,attrs)
+  | {ctx0:html5_ctx}{attrs:html5_attr_list} 
+    Link'(ctx0,ctx0,head_,link'(attrs))  of ElmAttrs(link_,attrs)
+  | {ctx0:html5_ctx}{attrs:html5_attr_list} 
+    Meta'(ctx0,ctx0,head_,meta'(attrs))  of ElmAttrs(meta_,attrs)
+  | {id:int}{ctx0:html5_ctx}{attrs:html5_attr_list} 
+    Style'(ctx0,ctx0,head_,style'(attrs,id))  of ElmAttrs(style_,attrs)
+  | {ctx0:html5_ctx}{attrs:html5_attr_list}{nodes:html5_elm_list}
+    Body'(ctx0,ctx0,html_,body'(attrs,nodes)) 
+      of (ElmAttrs(body_,attrs), ElmChildren(ctx0,body_,nodes))
+   
+#define :: ElmChildrenCons
+#define nil ElmChildrenNil
+
+
+dataprop Document(html5_elm_list) =
+  | {h1as,bas:html5_attr_list}
+    {h1es,bes:html5_elm_list}
+    {ctxh,ctxb:html5_ctx}
+    Document0( 
+        doctype'
+    :*: head'(h1as, h1es)
+    :*: body'(bas, bes)
+    :*: enil
+    ) of (
+      ElmAttrs(head_,h1as)
+    , ElmChildren(ctxh,head_,h1es)
+    , ElmAttrs(body_,bas)
+    , ElmChildren(ctxb,body_,bes)
+    )   
+  | {h0as,h1as,bas:html5_attr_list}
+    {h1es,bes:html5_elm_list}
+    {ctxh,ctxb:html5_ctx}
+    Document1( 
+      doctype'
+     :*: html'(h0as, 
+              head'(h1as, h1es)
+          :*: body'(bas, bes)
+          :*: enil
+        ) 
+     :*: enil
+    ) of (
+      ElmAttrs(html_,h0as)
+    , ElmAttrs(head_,h1as)
+    , ElmChildren(ctxh,head_,h1es)
+    , ElmAttrs(body_,bas)
+    , ElmChildren(ctxb,body_,bes)
+    )   
+    
+(** Be warned: we rely on the ability of ATS2 to infer `es` **) 
+fun {env:vt@ype+}{es: html5_elm_list }
+  html5_elm_list_out_verified( pf: Document(es) | env: &env ) : void
+  = html5_elm_list_out<es><env>( env )
+ 
+
+
 implement main0 () 
   = {
     stadef page_title = 0
@@ -16,6 +104,24 @@ implement main0 ()
     stadef countdown = 7
     stadef nothing_to_count = 8
     stadef show_count = 9
+
+    prval pf = 
+      Document0(
+          ANil
+        ,     Title'{..}{page_title}() 
+          :*: Meta'( Charset${utf8}() :@: ANil )
+          :*: ENil
+        , ANil
+        , ENil
+      )
+      where {
+        #define :*: ElmChildrenCons
+        #define ENil ElmChildrenNil
+        
+        #define :@: ElmAttrsCons
+        #define ANil ElmAttrsNil
+
+      }
 
     stadef document 
       = doctype'
@@ -77,6 +183,7 @@ implement main0 ()
   
     var x : int = 1000
     val () = html5_elm_list_out<document><int>( x ) 
+    val () = html5_elm_list_out_verified<int>( pf | x ) 
 
 
   }
