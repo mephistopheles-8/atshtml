@@ -228,8 +228,8 @@ stadef script'(attrs,id) : html5_elm
    = html5_elm_script(attrs,id)
 stadef noscript'(attrs,nodes) : html5_elm 
    = html5_elm_normal(noscript_,attrs,nodes)
-stadef template'(attrs,nodes) : html5_elm 
-   = html5_elm_normal(template_,attrs,nodes)
+stadef template'(attrs,id) : html5_elm 
+   = html5_elm_normal(template_,attrs, text'(id) :*: enil)
 stadef canvas'(attrs,nodes) : html5_elm 
    = html5_elm_normal(canvas_,attrs,nodes)
 
