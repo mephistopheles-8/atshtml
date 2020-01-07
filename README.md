@@ -11,7 +11,7 @@ GC is not required (and neither is memory-allocation in many cases).
 You can do anything with the HTML output by defining `html5$out`; concatenate
 it into a buffer or send it to a socket -- it's up to you.
 
-At this phase, it's a proof-of-concept.
+At this time, it's a proof-of-concept.
 
 ## Why?
 
@@ -72,9 +72,7 @@ If you are building a proof, it might be best to use macros for reusable parts.
 The user needs to make sure all dynamic ids are unique and defined, else you get
 template error messages in the C-compilation phase, which are tricky to debug.
 
-Constraint errors (eg, verifiying the context of an element) can be tricky to
-read and debug.  Refer to the `*.sats` files if you end up with integer literals, as
-they probably refer to tags, attributes, 
+Constraint errors (eg, verifiying the context of an element) can be completely indiscernable.  
 
 I reuse some infix ops in the statics and for the proof system.  I figure the consistency
 is best.  Honestly, I wish I could use the same infix operators for all static list-like ops, but
