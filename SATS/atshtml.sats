@@ -6,58 +6,6 @@
 stadef has_bit( vec: int, pow2 : int ) : bool =
    (  (vec / pow2 ) % 2 == 1 )
 
-stadef set_bit( vec: int, pow2 : int ) : int =
-    ( ifint(has_bit(vec,pow2), vec, vec + pow2) )
-
-stadef unset_bit( vec: int, pow2 : int ) : int =
-    ( ifint(has_bit(vec,pow2), vec - pow2, vec ) )
-
-stadef bit_bind ( b:bool, vec:int, pow2:int ) : int =
-    ( ifint(b,set_bit(vec,pow2), unset_bit(vec,pow2)) )
-
-stadef _lor8( vec: int, x : int ) : int =
-    ( ifint(has_bit(vec,1) || has_bit(x,1), 1, 0 ) +
-      ifint(has_bit(vec,2) || has_bit(x,2), 2, 0 ) +
-      ifint(has_bit(vec,4) || has_bit(x,4), 4, 0 ) +
-      ifint(has_bit(vec,8) || has_bit(x,8), 8, 0 ) +
-      ifint(has_bit(vec,16) || has_bit(x,16), 16, 0 ) +
-      ifint(has_bit(vec,32) || has_bit(x,32), 32, 0 ) +
-      ifint(has_bit(vec,64) || has_bit(x,64), 64, 0 ) +
-      ifint(has_bit(vec,128) || has_bit(x,128), 128, 0 ) )
-
-stadef _lor12( vec: int, x : int ) : int =
-    ( _lor8(vec, x) +
-      ifint(has_bit(vec,256) || has_bit(x,256), 256, 0 ) +
-      ifint(has_bit(vec,512) || has_bit(x,512), 512, 0 ) +
-      ifint(has_bit(vec,1024) || has_bit(x,1024), 1024, 0 ) + 
-      ifint(has_bit(vec,2048) || has_bit(x,2048), 2048, 0 ) 
-    )
-
-stadef _lor16( vec: int, x : int ) : int =
-    ( _lor8(vec, x) +
-      ifint(has_bit(vec,256) || has_bit(x,256), 256, 0 ) +
-      ifint(has_bit(vec,512) || has_bit(x,512), 512, 0 ) +
-      ifint(has_bit(vec,1024) || has_bit(x,1024), 1024, 0 ) +
-      ifint(has_bit(vec,2048) || has_bit(x,2048), 2048, 0 ) +
-      ifint(has_bit(vec,4096) || has_bit(x,4096), 4096, 0 ) +
-      ifint(has_bit(vec,8192) || has_bit(x,8192), 8192, 0 ) +
-      ifint(has_bit(vec,16384) || has_bit(x,16384), 16384, 0 ) +
-      ifint(has_bit(vec,32768) || has_bit(x,32768), 32768, 0 ) )
-
-(** This requires the end-user to run the proof arguments,
-    but it improves performance  greatly: generally makes the difference 
-    between tractable and not tractable (and improves error messages ever slightly).
-**)
-stacst lor8 : ( int, int ) -> int = "ext#"
-stacst lor12 : ( int, int ) -> int = "ext#"
-stacst lor16 : ( int, int ) -> int = "ext#"
-
-praxi lor8_define{vec,x:int}() : [ lor8(vec,x) == _lor8(vec,x) ] void 
-praxi lor12_define{vec,x:int}() : [ lor12(vec,x) == _lor12(vec,x) ] void 
-praxi lor16_define{vec,x:int}() : [ lor16(vec,x) == _lor16(vec,x) ] unit_p 
-praxi ifint_define{b:bool}{x,y:int}() : [(b && ifint(b,x,y) == x) || (~b && ifint(b,x,y) == y)] unit_p
-
-
 sortdef content_kind = int
 stadef uncategorized     = 0 // includes: document_root
 stadef metadata          = 128

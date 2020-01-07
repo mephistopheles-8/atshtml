@@ -235,12 +235,12 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(ol_)}
     Ol'(par,ol'(attrs,nodes),cnst) 
-      of (ElmAttrs(ol_,attrs), ElmChildren(ol_,nodes,cnst))
+      of (ElmAttrs(ol_,attrs), ElmChildren(ol_,nodes,lam(tag) => cnst(tag) || tag == li_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(ul_)}
     Ul'(par,ul'(attrs,nodes),cnst) 
-      of (ElmAttrs(ul_,attrs), ElmChildren(ul_,nodes,cnst))
+      of (ElmAttrs(ul_,attrs), ElmChildren(ul_,nodes,lam(tag) => cnst(tag) || tag == li_))
   | {par:html5_tag | par == ul_ || par == ol_}
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(li_)}
@@ -550,7 +550,6 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(th_,attrs), ElmChildren(th_,nodes,
         lam(tag) => cnst(tag) && ~is_sectioning(tag)))
   | {par: html5_tag | html5_content_flow(par) }
-    {ctx0,ctx1:html5_ctx | ~has_bit(ctx1,html5_ctx_form) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(form_)}
     Form'(par,form'(attrs,nodes),cnst) 
