@@ -26,11 +26,13 @@ Mostly to explore the following:
 I would say, the experiment more-or-less succeeded except for item 2 (constraints
 can be prohibitively time-consuming to solve).  I wrote a hack-ish script
 to get smt2 typechecking to work (`bin/patsolve_atshtml`), which requires
-`patsolve_smt2` to be on the path.  There are a few issues with this approach,
+`patsolve_smt2` and `z3` to be on the path.  There are a few issues with this approach,
 notably that end user code cannot contain datasorts and error messages are not
 terribly descriptive.
 
-Also note, most constraints are fine except for those involving context.
+I still need to vet the ways to sidestep the intensive constraint solving.
+Until then, it might be beneficial to use the unverified `datasort` eDSL.
+ 
 
 ## Status
 
