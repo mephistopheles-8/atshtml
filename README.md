@@ -1,10 +1,12 @@
 # atshtml
 
-atshtml is a purely static html templating system for ATS2.  It is currently a 
-work-in-progress.  Inspired by Haskell libraries like `blaze`,`lucid`, etc, but
-different in that represenation has no associated data.
+`atshtml` is a purely static html templating system for ATS2.  It is currently in 
+the proof-of-concept stage.  
 
-GC is not required (and neither is memory-allocation, really). 
+Inspired by Haskell libraries like `blaze`,`lucid`, etc, but different in that 
+the represenation has no associated data.
+
+GC is not required (and neither is memory-allocation in many cases). 
 
 You can do anything with the HTML output by defining `html5$out`; concatenate
 it into a buffer or send it to a socket -- it's up to you.
@@ -21,10 +23,19 @@ Mostly to explore the following:
 3. How easy is it to get rid of most or all runtime data represenations in an eDSL
    for ATS2?
 
+I would say, the experiment more-or-less succeeded except for item 2 (constraints
+can be prohibitively time-consuming to solve).  I wrote a hack-ish script
+to get smt2 typechecking to work (`bin/patsolve_atshtml`), which requires
+`patsolve_smt2` to be on the path.  There are a few issues with this approach,
+notably that end user code cannot contain datasorts and error messages are not
+terribly descriptive.
+
+Also note, most constraints are fine except for those involving context.
+
 ## Status
 
 I need to test the static verification a bit further, and see what the boundaries
-are on composability.  I imagine not all rules are encoded.
+are on composability.  I imagine not all W3C rules are encoded.
 
 Note that comments, styles and script tags are unescaped, so be careful with 
 those. Attributes and text are, however.
@@ -38,12 +49,14 @@ is required to "fill in the blanks."
 There is a proof eDSL which has constraints related to the W3C spec, and
 a datasort eDSL which is unverified.  Technically, you can serialize any
 `html5_elm_list` datasort.  The proofs are more strict, in case you want
-to do some verification on the document tree also. 
+to do some verification on the document tree also.
+
+NOTE: Constraints in the proof eDSL can take a long time to solve!  It may
+not be suitable for everyday use. 
 
 ## Is it Usable?
  
-That depends: some people really don't like eDSLs.  And really, does HTML5 verification
-really matter?   
+That depends: some people really don't like eDSLs.  And really, does HTML verification matter anyway?  :) 
 
 I do think it can be more concise than HTML, and any dynamic content is reusable after the 
 initial implementation (attribute values, text fields, etc).  

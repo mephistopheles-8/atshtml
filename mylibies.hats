@@ -12,6 +12,4 @@ staload _ = "./DATS/atshtml_prf.dats"
 #include "./mydepies.hats"
 #include "./HATS/atshtml_infix.hats"
 
-prval () = lor12_define()
-
 #endif

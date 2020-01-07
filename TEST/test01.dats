@@ -4,6 +4,7 @@
 
 #define s2m string2mixed
 
+
 implement main0 () 
   = {
     stadef page_title = 0
@@ -16,20 +17,21 @@ implement main0 ()
     stadef countdown = 7
     stadef nothing_to_count = 8
     stadef show_count = 9
-
+   
     prval pf = 
       Document0(
           ANil
         ,     Title'{..}{page_title}() 
           :*: Meta'( Charset${utf8}() :@: ANil )
-          :*: Noscript'(ANil,Meta'(ANil) :*: ENil)
+          :*: Noscript'(ANil, Meta'(ANil) :*: ENil)
           :*: ENil
         , ANil
-        ,      H1'(ANil, Text'{..}{hello_world}() :*: ENil)
+        ,     H1'(ANil, Text'{..}{hello_world}() :*: ENil)
           :*: Ul'(ANil,
-                Li'(ANil,ENil) :*: ENil
+                Li'(ANil,Text'{..}{hello_world}() :*: ENil) 
+            :*: ENil
              ) 
-          :*: Form'(ANil,
+          :*:  Form'(ANil,
                 P'(ANil, Text'{..}{hello_world}() :*: ENil) :*: ENil
               )
           :*: ENil

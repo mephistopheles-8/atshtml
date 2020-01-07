@@ -29,7 +29,8 @@ stadef _lor12( vec: int, x : int ) : int =
     ( _lor8(vec, x) +
       ifint(has_bit(vec,256) || has_bit(x,256), 256, 0 ) +
       ifint(has_bit(vec,512) || has_bit(x,512), 512, 0 ) +
-      ifint(has_bit(vec,1024) || has_bit(x,1024), 1024, 0 ) 
+      ifint(has_bit(vec,1024) || has_bit(x,1024), 1024, 0 ) + 
+      ifint(has_bit(vec,2048) || has_bit(x,2048), 2048, 0 ) 
     )
 
 stadef _lor16( vec: int, x : int ) : int =
@@ -43,18 +44,18 @@ stadef _lor16( vec: int, x : int ) : int =
       ifint(has_bit(vec,16384) || has_bit(x,16384), 16384, 0 ) +
       ifint(has_bit(vec,32768) || has_bit(x,32768), 32768, 0 ) )
 
-
 (** This requires the end-user to run the proof arguments,
     but it improves performance  greatly: generally makes the difference 
     between tractable and not tractable (and improves error messages ever slightly).
 **)
-stacst lor8 : ( int, int ) -> int
-stacst lor12 : ( int, int ) -> int
-stacst lor16 : ( int, int ) -> int
+stacst lor8 : ( int, int ) -> int = "ext#"
+stacst lor12 : ( int, int ) -> int = "ext#"
+stacst lor16 : ( int, int ) -> int = "ext#"
 
 praxi lor8_define{vec,x:int}() : [ lor8(vec,x) == _lor8(vec,x) ] void 
 praxi lor12_define{vec,x:int}() : [ lor12(vec,x) == _lor12(vec,x) ] void 
-praxi lor16_define{vec,x:int}() : [ lor16(vec,x) == _lor16(vec,x) ] void 
+praxi lor16_define{vec,x:int}() : [ lor16(vec,x) == _lor16(vec,x) ] unit_p 
+praxi ifint_define{b:bool}{x,y:int}() : [(b && ifint(b,x,y) == x) || (~b && ifint(b,x,y) == y)] unit_p
 
 
 sortdef content_kind = int
