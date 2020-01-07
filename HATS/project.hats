@@ -2,7 +2,7 @@
  ** Project : atshtml
  ** Author  : Mark Bellaire
  ** Year    : 2019
- ** License : MIT
+ ** License : BSD3
 *)
 #ifndef _ATSHTML_PROJECT_HATS
 #define _ATSHTML_PROJECT_HATS
