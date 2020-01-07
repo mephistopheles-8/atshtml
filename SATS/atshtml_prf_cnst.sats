@@ -27,6 +27,8 @@ stadef html5_content_flow( tag : html5_tag ) : bool = (
     tag == section_ ||
     tag == nav_ ||
     tag == aside_ ||
+    tag == header_ ||
+    tag == footer_ ||
     tag == blockquote_ ||
     tag == li_ ||
     tag == dt_ ||
@@ -82,14 +84,6 @@ stadef html5_content_phrasing( tag : html5_tag ) : bool = (
     tag == meter_ 
   )
 
-
-
-stacst html5_cnst_both : (html5_tag -> bool, html5_tag -> bool ) -> (html5_tag -> bool)
-
-prfn html5_cnst_both_define{f1,f2: html5_tag -> bool}{tag:html5_tag}() 
-  : [ html5_cnst_both(f1,f2)(tag) == (f1(tag) && f2(tag)) ] void 
-
-
 dataprop ElmAttrs(tag:html5_tag,ax:html5_attr_list) = 
   |  ElmAttrsNil(tag,anil)
   | {attr:html5_attr}{ax:html5_attr_list}
@@ -105,6 +99,20 @@ dataprop ElmChildren(par:html5_tag,es:html5_elm_list,cnst: html5_tag -> bool) =
      ElmChildrenCons(par,chi :*: es,cnst) 
       of (ElmChild(par,chi,cnst), ElmChildren(par,es,cnst))
 
+(** Notes: it's assumed that flow content is the most permissive.
+    Any items with a content model of "flow" just pass the constraint
+    to their children.  More restrictive content models 
+    will be the union of the cnst and their own rules
+
+    <area> elements are the only ones that require a specific ancestor
+    (<map> or <template>).  This is done by prohibiting them at the
+    and then easing the restriction inside of a <map> or <template>
+
+    A similar approach is done with header / footer tags, which cannot
+    contain header / footer tags unless they are the children of sectioning content.
+    They are "excluded" in the header element and then permitted as children
+    of sectioning elements
+**)
 and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
   | {id:int}{par: html5_tag |  html5_content_phrasing(par) || par == title_}
      Text'(par,text'(id),cnst) 
@@ -136,22 +144,26 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(article_)}
     Article'(par,article'(attrs,nodes),cnst) 
-      of (ElmAttrs(article_,attrs), ElmChildren(article_,nodes,cnst))
+      of (ElmAttrs(article_,attrs), ElmChildren(article_,nodes,
+         lam(tag) => (cnst(tag) && tag != main_) || tag == header_ || tag == footer_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(section_)}
     Section'(par,section'(attrs,nodes),cnst) 
-      of (ElmAttrs(section_,attrs), ElmChildren(section_,nodes,cnst))
+      of (ElmAttrs(section_,attrs), ElmChildren(section_,nodes,
+        lam(tag) => cnst(tag) || tag == header_ || tag == footer_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(nav_)}
     Nav'(par,nav'(attrs,nodes),cnst) 
-      of (ElmAttrs(nav_,attrs), ElmChildren(nav_,nodes,cnst))
+      of (ElmAttrs(nav_,attrs), ElmChildren(nav_,nodes,
+        lam(tag) => (cnst(tag) && tag != main_) || tag == header_ || tag == footer_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(aside_)}
     Aside'(par,aside'(attrs,nodes),cnst) 
-      of (ElmAttrs(aside_,attrs), ElmChildren(aside_,nodes,cnst))
+      of (ElmAttrs(aside_,attrs), ElmChildren(aside_,nodes,
+        lam(tag) => (cnst(tag) && tag != main_) || tag == header_ || tag == footer_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(h1_)}
@@ -186,12 +198,14 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(header_)}
     Header'(par,header'(attrs,nodes),cnst) 
-      of (ElmAttrs(header_,attrs), ElmChildren(header_,nodes,cnst))
+      of (ElmAttrs(header_,attrs), ElmChildren(header_,nodes,
+        lam(tag) => cnst(tag) && tag != main_ && tag != header_ && tag != footer_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(footer_)}
     Footer'(par,footer'(attrs,nodes),cnst) 
-      of (ElmAttrs(footer_,attrs), ElmChildren(footer_,nodes,cnst))
+      of (ElmAttrs(footer_,attrs), ElmChildren(footer_,nodes,
+        lam(tag) => cnst(tag) && tag != main_ && tag != header_ && tag != footer_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(p_)}
@@ -201,7 +215,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(address_)}
     Address'(par,address'(attrs,nodes),cnst) 
-      of (ElmAttrs(address_,attrs), ElmChildren(address_,nodes,cnst))
+      of (ElmAttrs(address_,attrs), ElmChildren(address_,nodes,
+          lam(tag) => cnst(tag) && ~is_sectioning(tag) && ~is_heading(tag) && tag != header_ && tag != footer_ && tag != address_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list} 
     {cnst(hr_)}
@@ -240,7 +255,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(dt_)}
     Dt'(par,dt'(attrs,nodes),cnst) 
-      of (ElmAttrs(dt_,attrs), ElmChildren(dt_,nodes,cnst))
+      of (ElmAttrs(dt_,attrs), ElmChildren(dt_,nodes,
+        lam(tag) => cnst(tag) && ~is_sectioning(tag)))
   | {par: html5_tag | par == dl_ || par == div_}
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(dd_)}
@@ -252,7 +268,7 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(figure_,attrs), ElmChildren(figure_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(figcaption_)}
-    Figcaption'(par,figcaption'(attrs,nodes),cnst) 
+    Figcaption'(figure_,figcaption'(attrs,nodes),cnst) 
       of (ElmAttrs(figcaption_,attrs), ElmChildren(figcaption_,nodes,cnst))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
@@ -268,7 +284,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(a_)}
     A'(par,a'(attrs,nodes),cnst) 
-      of (ElmAttrs(a_,attrs), ElmChildren(par,nodes,cnst)) // transparent
+      of (ElmAttrs(a_,attrs), ElmChildren(par,nodes,
+        lam(tag) => cnst(tag) && ~is_interactive(tag))) // transparent
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(em_)}
@@ -303,7 +320,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(dfn_)}
     Dfn'(par,dfn'(attrs,nodes),cnst) 
-      of (ElmAttrs(dfn_,attrs), ElmChildren(dfn_,nodes,cnst))
+      of (ElmAttrs(dfn_,attrs), ElmChildren(dfn_,nodes,
+        lam(tag) => cnst(tag) && tag != dfn_))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(abbr_)}
@@ -429,7 +447,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {cnst(picture_)}
     Picture'(par,picture'(attrs,nodes),cnst) 
       of (ElmAttrs(picture_,attrs), ElmChildren(picture_,nodes,cnst))
-  | {attrs:html5_attr_list} 
+  | {par: html5_tag | par == picture_ || par == audio_ || par == video_}
+    {attrs:html5_attr_list} 
     {cnst(source_)}
     Source'(par,source'(attrs),cnst)  of ElmAttrs(source_,attrs)
   | {par: html5_tag | html5_content_phrasing(par) }
@@ -452,7 +471,7 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(object_,attrs), ElmChildren(par,nodes,cnst)) // transparent
   | {attrs:html5_attr_list} 
     {cnst(param_)}
-    Param'(par,param'(attrs),cnst)  of ElmAttrs(param_,attrs)
+    Param'(object_,param'(attrs),cnst)  of ElmAttrs(param_,attrs)
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(video_)}
@@ -463,14 +482,16 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {cnst(audio_)}
     Audio'(par,audio'(attrs,nodes),cnst) 
       of (ElmAttrs(audio_,attrs), ElmChildren(par,nodes,cnst)) // transparent
-  | {attrs:html5_attr_list} 
+  | {par: html5_tag | par == audio_ || par == video_}
+    {attrs:html5_attr_list} 
     {cnst(track_)}
     Track'(par,track'(attrs),cnst)  of ElmAttrs(track_,attrs)
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(map_)}
     Map'(par,map'(attrs,nodes),cnst) 
-      of (ElmAttrs(map_,attrs), ElmChildren(par,nodes,cnst)) // transparent
+      of (ElmAttrs(map_,attrs), ElmChildren(par,nodes,
+        lam(tag) => cnst(tag) || tag == area_)) // transparent
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list} 
     {cnst(area_)}
@@ -493,7 +514,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(caption_)}
     Caption'(par,caption'(attrs,nodes),cnst) 
-      of (ElmAttrs(caption_,attrs), ElmChildren(caption_,nodes,cnst))
+      of (ElmAttrs(caption_,attrs), ElmChildren(caption_,nodes,
+        lam(tag) => cnst(tag) && tag != table_))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(colgroup_)}
     Colgroup'(par,colgroup'(attrs,nodes),cnst) 
@@ -525,18 +547,21 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(th_)}
     Th'(par,th'(attrs,nodes),cnst) 
-      of (ElmAttrs(th_,attrs), ElmChildren(th_,nodes,cnst))
+      of (ElmAttrs(th_,attrs), ElmChildren(th_,nodes,
+        lam(tag) => cnst(tag) && ~is_sectioning(tag)))
   | {par: html5_tag | html5_content_flow(par) }
     {ctx0,ctx1:html5_ctx | ~has_bit(ctx1,html5_ctx_form) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(form_)}
     Form'(par,form'(attrs,nodes),cnst) 
-      of (ElmAttrs(form_,attrs), ElmChildren(form_,nodes,cnst))
+      of (ElmAttrs(form_,attrs), ElmChildren(form_,nodes,
+        lam(tag) => cnst(tag) && tag != form_))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(label_)}
     Label'(par,label'(attrs,nodes),cnst) 
-      of (ElmAttrs(label_,attrs), ElmChildren(label_,nodes,cnst))
+      of (ElmAttrs(label_,attrs), ElmChildren(label_,nodes,
+        lam(tag) => cnst(tag) && tag != label_))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list} 
     {cnst(input_)}
@@ -545,7 +570,8 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(button_)}
     Button'(par,button'(attrs,nodes),cnst) 
-      of (ElmAttrs(button_,attrs), ElmChildren(button_,nodes,cnst))
+      of (ElmAttrs(button_,attrs), ElmChildren(button_,nodes,
+        lam(tag) => cnst(tag) && ~is_interactive(tag)))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(select_)}
@@ -580,12 +606,14 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(progress_)}
     Progress'(par,progress'(attrs,nodes),cnst) 
-      of (ElmAttrs(progress_,attrs), ElmChildren(progress_,nodes,cnst))
+      of (ElmAttrs(progress_,attrs), ElmChildren(progress_,nodes,
+        lam(tag) => cnst(tag) && tag != progress_))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(meter_)}
     Meter'(par,meter'(attrs,nodes),cnst) 
-      of (ElmAttrs(meter_,attrs), ElmChildren(meter_,nodes,cnst))
+      of (ElmAttrs(meter_,attrs), ElmChildren(meter_,nodes,
+        lam(tag) => cnst(tag) && tag != meter_))
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(fieldset_)}
@@ -593,7 +621,7 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(fieldset_,attrs), ElmChildren(fieldset_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(legend_)}
-    Legend'(par,legend'(attrs,nodes),cnst) 
+    Legend'(fieldset_,legend'(attrs,nodes),cnst) 
       of (ElmAttrs(legend_,attrs), ElmChildren(legend_,nodes,cnst))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
@@ -602,7 +630,7 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(details_,attrs), ElmChildren(details_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(summary_)}
-    Summary'(par,summary'(attrs,nodes),cnst) 
+    Summary'(details_,summary'(attrs,nodes),cnst) 
       of (ElmAttrs(summary_,attrs), ElmChildren(summary_,nodes,cnst))
   | {id:int}{attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(script_)}
@@ -612,10 +640,12 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(noscript_)}
     Noscript'(par,noscript'(attrs,nodes),cnst) 
-      of (ElmAttrs(noscript_,attrs), ElmChildren(par,nodes,cnst)) // transparent
+      of (ElmAttrs(noscript_,attrs), ElmChildren(par,nodes,
+        lam(x) => cnst(x) && x != noscript_)) // transparent
   | {id:int}{attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(template_)}
-    Template'(par,template'(attrs,id),cnst) 
+    Template'(par,template'(attrs,id),
+      lam(tag) => cnst(tag) || tag == area_) 
       of (ElmAttrs(template_,attrs))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
@@ -637,7 +667,7 @@ dataprop Document(html5_elm_list) =
       ElmAttrs(head_,h1as)
     , ElmChildren(head_,h1es,is_metadata)
     , ElmAttrs(body_,bas)
-    , ElmChildren(body_,bes,is_flow)
+    , ElmChildren(body_,bes,lam(tag) => is_flow(tag) && tag != area_)
     )   
   | {h0as,h1as,bas:html5_attr_list}
     {h1es,bes:html5_elm_list}
@@ -654,7 +684,7 @@ dataprop Document(html5_elm_list) =
     , ElmAttrs(head_,h1as)
     , ElmChildren(head_,h1es,is_metadata)
     , ElmAttrs(body_,bas)
-    , ElmChildren(body_,bes,is_flow)
+    , ElmChildren(body_,bes,lam(tag) => is_flow(tag) && tag != area_)
     )   
 
 (** Be warned: we rely on the ability of ATS2 to infer `es` **) 
