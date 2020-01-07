@@ -504,6 +504,9 @@ datasort html5_elm =
   | html5_elm_either of (html5_elm_list, html5_elm_list, int)
   (** Simple conditional **)
   | html5_elm_opt of (html5_elm_list, int)
+  (** Subdoc: push new state **)
+  | html5_elm_frame of (vt@ype+,html5_elm_list,int)
+  
   (**     **      **)
 
 and html5_elm_list =
@@ -531,6 +534,17 @@ fun {id:int}{env:vt@ype+}
 (** Style Text **)
 fun {id:int}{env:vt@ype+}
   html5$style( &env ) : strmixed1
+
+
+(** For pushing different state to the stack **)
+fun {id:int}{env0,env1:vt@ype+}
+  html5$push( &env0 ) : env1
+
+fun {id:int}{env0,env1:vt@ype+}
+  html5$pop( &env0, &env1 ) : void
+
+fun {env1:vt@ype+}
+  html5$free( env1 ) : void
 
 (** Returns true if we want to display the next elm, false otherwise;
     If it returns false on the first iteration, it will show the 

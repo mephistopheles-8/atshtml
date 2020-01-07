@@ -246,3 +246,11 @@ stadef MANY_OR'(xs0,xs1,id) : html5_elm
 
 stadef OPT'(xs0,id) : html5_elm
   = html5_elm_opt(xs0,id)
+
+stadef WITH'(a,xs0,id) : html5_elm
+  = html5_elm_frame(a,xs0,id)
+
+
+
+
+

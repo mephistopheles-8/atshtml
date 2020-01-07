@@ -466,6 +466,12 @@ html5_attr_out$kind<_width>() = "width"
 implement 
 html5_attr_out$kind<_wrap>() = "wrap"
 
+implement (a:t@ype+) 
+html5$free<a>( x ) = ()
+
+implement {id}{env1,env2}
+html5$pop( e0, e1 ) = ()
+
 fun {env:vt@ype+}
 html5_out_escaped( env: &env, sm0: !strmixed0 ) : void 
   =   {
@@ -666,6 +672,16 @@ html5_elm_out<html5_elm_opt(xs0,id)><env>( env )
   = if html5$elm$opt_issome<id><env>( env ) 
     then html5_elm_list_out<xs0><env>( env )
     else ()
+
+implement (id,xs0,xs1,env0:vt@ype+,env1:vt@ype+)
+html5_elm_out<html5_elm_frame(env1,xs0,id)><env0>( env )
+  = {
+    var env' : env1 
+        = html5$push<id><env0,env1>(env) 
+    val () = html5_elm_list_out<xs0><env1>( env' )
+    val () = html5$pop<id><env0,env1>(env,env')
+    val () = html5$free<env1>(env')
+  }
 
 implement (env:vt@ype+)
 html5_elm_list_out<enil><env>( env ) = () 
