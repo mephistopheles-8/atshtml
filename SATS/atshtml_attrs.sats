@@ -4,8 +4,8 @@ staload "./atshtml.sats"
 
 stadef accept$(id) : html5_attr 
    = html5_attr(_accept,id)
-stadef accept$(id) : html5_attr 
-   = html5_attr(_accept,id)
+stadef accept_charset$(id) : html5_attr 
+   = html5_attr(_accept_charset,id)
 stadef accesskey$(id) : html5_attr 
    = html5_attr(_accesskey,id)
 stadef action$(id) : html5_attr 

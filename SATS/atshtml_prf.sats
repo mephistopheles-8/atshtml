@@ -7,20 +7,6 @@ staload "./atshtml_attrs.sats"
 
 #include "./../HATS/atshtml_infix.hats"
 
-sortdef html5_ctx = int
-stadef html5_ctx_init         = 0
-stadef html5_ctx_sectioning   = 1
-stadef html5_ctx_main         = 2
-stadef html5_ctx_media        = 4
-stadef html5_ctx_form         = 8
-stadef html5_ctx_interactive  = 16
-stadef html5_ctx_dfn          = 32
-stadef html5_ctx_area         = 64
-stadef html5_ctx_meter        = 128
-stadef html5_ctx_progress     = 256 
-stadef html5_ctx_noscript     = 512
-stadef html5_ctx_heading      = 1024
-
 stadef html5_content_flow( tag : html5_tag ) : bool = (
     tag == body_ ||
     tag == article_ ||
@@ -89,9 +75,365 @@ dataprop ElmAttrs(tag:html5_tag,ax:html5_attr_list) =
   | {attr:html5_attr}{ax:html5_attr_list}
      ElmAttrsCons(tag, attr :@: ax )
       of (ElmAttr(tag,attr), ElmAttrs(tag,ax))
-and ElmAttr(html5_tag,html5_attr) =
-  | {id:int}
-    Charset$(meta_, charset$(id))
+
+and ElmAttr(par:html5_tag,html5_attr) =
+  | {id:int}{
+        par == meta_ ||
+        par == script_
+    } Charset$(par, charset$(id))
+  | {id:int}{
+        par == form_ ||
+        par == input_
+    } Accept$(par,accept$(id))
+  | {id:int} Accept_Charset$(form_,accept_charset$(id))
+  | {id:int} Accesskey$(par,accesskey$(id))
+  | {id:int} Action$(form_,action$(id))
+  | {id:int}{
+        par == caption_ ||
+        par == col_ ||
+        par == colgroup_ ||
+        par == hr_ ||
+        par == iframe_ ||
+        par == img_ ||
+        par == table_ ||
+        par == tbody_ ||
+        par == td_ ||
+        par == tfoot_ ||
+        par == th_ ||
+        par == thead_ ||
+        par == tr_  
+    } Align$(par,align$(id))
+  | {id:int}{
+        par == area_ ||
+        par == img_ ||
+        par == input_ 
+    } Alt$(par,alt$(id))
+  | {id:int} Async$(script_,async$(id))
+  | {id:int} Autocapitalize$(par,autocapitalize$(id))
+  | {id:int}{
+        par == form_ ||
+        par == input_ ||
+        par == textarea_
+    } Autocomplete$(par,autocomplete$(id))
+  | {id:int}{
+        par == button_ ||
+        par == input_ 
+    } Autofocus$(par,autofocus$(id))
+  | {id:int}{
+        par == video_ ||
+        par == audio_ 
+    } Autoplay$(par,autoplay$(id))
+  | {id:int}{
+        par == body_ ||
+        par == col_ ||
+        par == colgroup_ ||
+        par == table_ ||
+        par == tbody_ ||
+        par == tfoot_ ||
+        par == td_ ||
+        par == th_ ||
+        par == tr_ 
+    } Bgcolor$(par,bgcolor$(id))
+  | {id:int} Border$(par,border$(id))
+  | {id:int} {
+        par == video_ ||
+        par == audio_ 
+    } Buffered$(par,buffered$(id))
+  | {id:int} Challenge$(par,challenge$(id))
+  | {id:int} Charset$(par,charset$(id))
+  | {id:int} Checked$(input_,checked$(id))
+  | {id:int}{
+        par == blockquote_ ||
+        par == del_ ||
+        par == ins_ ||
+        par == q_  
+    } Cite$(par,cite$(id))
+  | {id:int} Class$(par,class$(id))
+  | {id:int} Code$(par,code$(id))
+  | {id:int} Codebase$(par,codebase$(id))
+  | {id:int} Color$(hr_,color$(id))
+  | {id:int} Cols$(textarea_,cols$(id))
+  | {id:int}{
+        par == td_ ||
+        par == th_
+    } Colspan$(par,colspan$(id))
+  | {id:int} Content$(meta_,content$(id))
+  | {id:int} Contenteditable$(par,contenteditable$(id))
+  | {id:int} Contextmenu$(par,contextmenu$(id))
+  | {id:int} {
+        par == video_ ||
+        par == audio_ 
+    } Controls$(par,controls$(id))
+  | {id:int} Coords$(area_,coords$(id))
+  | {id:int} Crossorigin$(par,crossorigin$(id))
+  | {id:int} Data$(object_,data$(id))
+  | {id:int} {
+        par == del_ ||
+        par == ins_ ||
+        par == time_ 
+    } Datetime$(par,datetime$(id))
+  | {id:int} Default$(track_,default$(id))
+  | {id:int} Defer$(script_,defer$(id))
+  | {id:int} Dir$(par,dir$(id))
+  | {id:int} {
+        par == input_ ||
+        par == textarea_
+    } Dirname$(par,dirname$(id))
+  | {id:int} {
+        par == button_ ||
+        par == fieldset_ ||
+        par == input_ ||
+        par == label_ ||
+        par == meter_ || 
+        par == object_ ||
+        par == output_ ||
+        par == progress_ ||
+        par == select_ ||
+        par == textarea_ 
+    } Disabled$(par,disabled$(id))
+  | {id:int} Download$(par,download$(id))
+  | {id:int} Draggable$(par,draggable$(id))
+  | {id:int} Dropzone$(par,dropzone$(id))
+  | {id:int} Enctype$(form_,enctype$(id))
+  | {id:int} {
+        par == label_ ||
+        par == output_
+    } For$(par,for$(id))
+  | {id:int} {
+        par == button_ ||
+        par == fieldset_ ||
+        par == input_ ||
+        par == label_ ||
+        par == meter_ || 
+        par == object_ ||
+        par == output_ ||
+        par == progress_ ||
+        par == select_ ||
+        par == textarea_ 
+    } Form$(par,form$(id))
+  | {id:int} {
+        par == input_ ||
+        par == button_
+    } Formaction$(par,formaction$(id))
+  | {id:int}{
+        par == td_ ||
+        par == th_
+    } Headers$(par,headers$(id))
+  | {id:int}{
+        par == canvas_ ||
+        par == video_ ||
+        par == iframe_ ||
+        par == img_ ||
+        par == embed_ ||
+        par == object_ ||
+        par == input_ 
+    } Height$(par,height$(id))
+  | {id:int} Hidden$(par,hidden$(id))
+  | {id:int} High$(meter_,high$(id))
+  | {id:int} Href$(par,href$(id))
+  | {id:int}{
+        par == a_ ||
+        par == area_ ||
+        par == link_
+    } Hreflang$(par,hreflang$(id))
+  | {id:int} Http_equiv$(meta_,http_equiv$(id))
+  | {id:int} Icon$(par,icon$(id))
+  | {id:int} Id$(par,id$(id))
+  | {id:int} {
+        par == link_ ||
+        par == script_
+    } Integrity$(par,integrity$(id))
+  | {id:int} Ismap$(img_,ismap$(id))
+  | {id:int} Itemprop$(par,itemprop$(id))
+  | {id:int} Keytype$(par,keytype$(id))
+  | {id:int} Kind$(track_,kind$(id))
+  | {id:int} Label$(track_,label$(id))
+  | {id:int} Lang$(par,lang$(id))
+  | {id:int} Language$(script_,language$(id))
+  | {id:int} List$(input_,list$(id))
+  | {id:int} {
+        par == video_ ||
+        par == audio_ 
+    } Loop$(par,loop$(id))
+  | {id:int} Low$(meter_,low$(id))
+  | {id:int} Manifest$(html_,manifest$(id))
+  | {id:int} {
+        par == input_ ||
+        par == meter_ ||
+        par == progress_ 
+    } Max$(par,max$(id))
+  | {id:int} {
+        par == input_ ||
+        par == textarea_ 
+    }  Maxlength$(par,maxlength$(id))
+  | {id:int} {
+        par == input_ ||
+        par == textarea_ 
+   } Minlength$(par,minlength$(id))
+  | {id:int}{
+        par == a_ ||
+        par == area_ ||
+        par == link_ ||
+        par == source_ ||
+        par == style_ 
+    } Media$(par,media$(id))
+  | {id:int} Method$(form_,method$(id))
+  | {id:int} {
+        par == input_ ||
+        par == meter_ 
+    } Min$(par,min$(id))
+  | {id:int}{
+        par == input_ ||
+        par == select_ 
+    } Multiple$(par,multiple$(id))
+  | {id:int}{
+        par == video_ ||
+        par == audio_ 
+    } Muted$(par,muted$(id))
+  | {id:int}{
+        par == button_ ||
+        par == form_ ||
+        par == fieldset_ ||
+        par == iframe_ ||
+        par == input_ ||
+        par == object_ ||
+        par == output_ ||
+        par == select_ ||
+        par == textarea_ ||
+        par == map_ ||
+        par == meta_ ||
+        par == param_
+    } Name$(par,name$(id))
+  | {id:int} Novalidate$(form_,novalidate$(id))
+  | {id:int} Open$(details_,open$(id))
+  | {id:int} Optimum$(meter_,optimum$(id))
+  | {id:int} Pattern$(input_,pattern$(id))
+  | {id:int} {
+        par == a_ ||
+        par == area_
+    } Ping$(par,ping$(id))
+  | {id:int} {
+        par == input_ ||
+        par == textarea_ 
+    } Placeholder$(par,placeholder$(id))
+  | {id:int} Poster$(video_,poster$(id))
+  | {id:int}{
+        par == video_ ||
+        par == audio_ 
+    } Preload$(par,preload$(id))
+  | {id:int} Radiogroup$(par,radiogroup$(id))
+  | {id:int} {
+        par == input_ ||
+        par == textarea_ 
+    } Readonly$(par,readonly$(id))
+  | {id:int} {
+        par == a_ ||
+        par == area_ ||
+        par == link_  
+    } Rel$(par,rel$(id))
+  | {id:int} {
+        par == input_ ||
+        par == select_ || 
+        par == textarea_
+    } Required$(par,required$(id))
+  | {id:int} Reversed$(ol_,reversed$(id))
+  | {id:int} Rows$(textarea_,rows$(id))
+  | {id:int} {
+        par == td_ ||
+        par == th_
+    } Rowspan$(par,rowspan$(id))
+  | {id:int} Sandbox$(iframe_,sandbox$(id))
+  | {id:int} Scope$(th_,scope$(id))
+  | {id:int} Scoped$(style_,scoped$(id))
+  | {id:int} Selected$(option_,selected$(id))
+  | {id:int} {
+        par == a_ ||
+        par == area_
+    } Shape$(par,shape$(id))
+  | {id:int} {
+        par == input_ ||
+        par == select_ 
+    } Size$(par,size$(id))
+  | {id:int} {
+        par == link_ ||
+        par == img_ ||
+        par == source_ 
+   } Sizes$(par,sizes$(id))
+  | {id:int} Slot$(par,slot$(id))
+  | {id:int} {
+      par == col_ ||
+      par == colgroup_
+    } Span$(par,span$(id))
+  | {id:int} Spellcheck$(par,spellcheck$(id))
+  | {id:int} {
+        par == audio_ ||
+        par == embed_ ||
+        par == iframe_ ||
+        par == img_ ||
+        par == input_ ||
+        par == script_ ||
+        par == source_ ||
+        par == track_ ||
+        par == video_  
+    } Src$(par,src$(id))
+  | {id:int} Srcdoc$(iframe_,srcdoc$(id))
+  | {id:int} Srclang$(track_,srclang$(id))
+  | {id:int} Srcset$(img_,srcset$(id))
+  | {id:int} Start$(ol_,start$(id))
+  | {id:int} Step$(input_,step$(id))
+  | {id:int} Style$(par,style$(id))
+  | {id:int} Summary$(table_,summary$(id))
+  | {id:int} Tabindex$(par,tabindex$(id))
+  | {id:int} {
+        par == a_ ||
+        par == area_ ||
+        par == base_ ||
+        par == form_  
+    } Target$(par,target$(id))
+  | {id:int} Title$(par,title$(id))
+  | {id:int} Translate$(par,translate$(id))
+  | {id:int} {
+        par == button_ ||
+        par == link_ ||
+        par == input_ ||
+        par == embed_ ||
+        par == object_ ||
+        par == script_ ||
+        par == source_ ||
+        par == style_ 
+    } Type$(par,type$(id))
+  | {id:int} {
+        par == img_ ||
+        par == input_ ||
+        par == object_ 
+    } Usemap$(par,usemap$(id))
+  | {id:int}{
+        par == button_ ||
+        par == option_ ||
+        par == input_ ||
+        par == li_ ||
+        par == meter_ ||
+        par == progress_ ||
+        par == param_ 
+    } Value$(par,value$(id))
+  | {id:int} {
+        par == canvas_ ||
+        par == video_ ||
+        par == iframe_ ||
+        par == img_ ||
+        par == embed_ ||
+        par == object_ ||
+        par == input_ 
+    } Width$(par,width$(id))
+  | {id:int} Wrap$(textarea_,wrap$(id))
+
+  (** Combinators **)
+  | {id:int}{ax:html5_attr_list} 
+    Opt$(par,OPT$(ax,id))
+      of ElmAttrs(par,ax) 
+  | {id:int}{ax0,ax1:html5_attr_list} 
+    Either$(par,EITHER$(ax0,ax1,id))
+      of (ElmAttrs(par,ax0), ElmAttrs(par,ax1)) 
 
 dataprop ElmChildren(par:html5_tag,es:html5_elm_list,cnst: html5_tag -> bool) =
   |  ElmChildrenNil(par,enil,cnst)
@@ -651,8 +993,21 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {cnst(canvas_)}
     Canvas'(par,canvas'(attrs,nodes),cnst) 
       of (ElmAttrs(canvas_,attrs), ElmChildren(par,nodes,cnst)) // transparent
-  
-  
+
+  (** Combinators **)
+ 
+  | {id:int}{e0,e1:html5_elm_list}
+    ManyOr'(par,MANY_OR'(e0,e1,id),cnst)
+      of (ElmChildren(par,e0,cnst),ElmChildren(par,e1,cnst)) 
+  | {id:int}{e0,e1:html5_elm_list}
+    Either'(par,EITHER'(e0,e1,id),cnst)
+      of (ElmChildren(par,e0,cnst),ElmChildren(par,e1,cnst)) 
+  | {id:int}{e0:html5_elm_list}
+    Opt'(par,OPT'(e0,id),cnst)
+      of (ElmChildren(par,e0,cnst)) 
+  | {a:vt@ype+}{id:int}{e0:html5_elm_list}
+    With'(par,WITH'(a,e0,id),cnst)
+      of (ElmChildren(par,e0,cnst)) 
  
 dataprop Document(html5_elm_list) =
   | {h1as,bas:html5_attr_list}

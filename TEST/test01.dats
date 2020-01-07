@@ -22,7 +22,7 @@ implement main0 ()
       Document0(
           ANil
         ,     Title'{..}{page_title}() 
-          :*: Meta'( Charset${utf8}() :@: ANil )
+          :*: Meta'( Charset${..}{utf8}() :@: ANil )
           :*: Noscript'(ANil, Meta'(ANil) :*: ENil)
           :*: ENil
         , ANil
@@ -30,8 +30,12 @@ implement main0 ()
           :*: Ul'(ANil,
                 Li'(ANil,Text'{..}{hello_world}() :*: ENil) 
             :*: ENil
-             ) 
-          :*:  Form'(ANil,
+             )
+          :*: Either'{..}{is_gt0}(
+                P'(ANil, Text'{..}{gt0_notify}() :*: ENil) :*: ENil
+              , P'(ANil, Text'{..}{lte0_notify}() :*: ENil) :*: ENil
+            )
+          :*:  Form'(Action${..}{utf8}() :@: ANil,
                 P'(ANil, Text'{..}{hello_world}() :*: ENil) :*: ENil
               )
           :*: ENil
