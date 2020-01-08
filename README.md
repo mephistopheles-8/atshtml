@@ -4,7 +4,7 @@
 the proof-of-concept stage.  
 
 Inspired by Haskell libraries like `blaze`,`lucid`, etc, but different in that 
-the HTML represenation has no associated data.
+the HTML represenation has no associated data at runtime.
 
 GC is not required (and neither is memory-allocation in many cases). 
 
@@ -25,13 +25,14 @@ Mostly to explore the following:
 
 I would say, the experiment more-or-less succeeded, though it took me a long
 time to figure out a decent approach.  It turns out, ATS2 supports static
-lambdas (who knew?), which led me to move away from a static bitfield approach
+lambdas, which led me to move away from a static bitfield approach
 that required an external constraint solver.
 
-This kind of "verify-as-you-code" approach isn't common.  I believe Urweb 
-and maybe Emerald (Nim) does something of this sort.  Generally, you need
-a separate validator for the templating engine, and ATS2 lets you sidestep
-that.
+While it seems excessive, the rules of HTML are quite complex.  It's good to have
+them embedded in the system that you are using.  While HTML5 validators work, things get
+tricky for dynamic sites.  I find that wading through the W3C spec is rarely a priority
+while tryinng to get things done. This library should provide a means of validating your
+markup while making progress on other things. 
 
 ## Status
 
@@ -72,11 +73,15 @@ If you are building a proof, it might be best to use macros for reusable parts.
 The user needs to make sure all dynamic ids are unique and defined, else you get
 template error messages in the C-compilation phase, which are tricky to debug.
 
-Constraint errors (eg, verifiying the context of an element) can be completely indiscernable.  
+Constraint errors (eg, verifiying the context of an element) can be indiscernable. 
 
 I reuse some infix ops in the statics and for the proof system.  I figure the consistency
 is best.  Honestly, I wish I could use the same infix operators for all static list-like ops, but
 it doesn't seem posible. 
+
+Attribute values, CSS and Javascript are still just strings; for the semantics of the values, you're
+largely on your own. 
+
 
 LICENSE: BSD3
 
