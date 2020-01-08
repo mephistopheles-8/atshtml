@@ -239,7 +239,7 @@ html5_elm_out$tag<canvas_>() = "canvas"
 implement 
 html5_attr_out$kind<_accept>() = "accept"
 implement 
-html5_attr_out$kind<_accept>() = "accept"
+html5_attr_out$kind<_accept_charset>() = "accept-charset"
 implement 
 html5_attr_out$kind<_accesskey>() = "accesskey"
 implement 
