@@ -23,8 +23,7 @@ Mostly to explore the following:
 
 I would say, the experiment more-or-less succeeded, though it took me a long
 time to figure out a decent approach.  It turns out, ATS2 supports static
-lambdas, which led me to move away from a static bitfield approach
-that required an external constraint solver.
+lambdas, which made things much easier than expected.
 
 While it seems excessive, the rules of HTML are quite complex.  It's good to have
 them embedded in the system that you are using.  While HTML5 validators work, things get
@@ -40,6 +39,12 @@ are on composability.  Some W3C rules may be missing.
 Note that comments, styles and script tags are not escaped, so be careful with 
 those. Attributes and text should be XSS-safe, but the values themselves are
 not verified.
+
+Not finished yet:
+- MathML/SVG are not yet implemented
+- Elements requiring verification of sequence are not fully implemented (`<table>`, `<dl>`, 
+  `<ruby>`, etc). 
+- Various tests; usability, amongst other things.
 
 ## How to Use It?
 
@@ -59,7 +64,7 @@ Much of the W3C spec is encoded, but there may be some missing pieces.
 That depends: some people really don't like eDSLs.  And really, does HTML verification matter anyway?  :) 
 
 I do think it can be more concise than HTML, and any dynamic content is reusable after the 
-initial implementation (attribute values, text fields, etc).  
+initial implementation (attribute values, text fields, etc). 
 
 ## Caveats
 
@@ -76,7 +81,7 @@ Constraint errors (eg, verifiying the context of an element) can be indiscernabl
 
 I reuse some infix ops in the statics and for the proof system.  I figure the consistency
 is best.  Honestly, I wish I could use the same infix operators for all static list-like ops, but
-it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` to use infix ops while
+it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` in your scope to use infix ops while
 constructing proofs.
 
 Attribute values, CSS and Javascript are still just strings; for the semantics of the values, you're
