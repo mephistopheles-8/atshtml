@@ -21,8 +21,8 @@ Mostly to explore the following:
 3. How easy is it to get rid of most or all runtime data represenations in an eDSL
    for ATS2?
 
-I would say, the experiment more-or-less succeeded, though it took me a long
-time to figure out a decent approach.  It turns out, ATS2 supports static
+I would say the experiment was mostly a success, though it took me a long
+time to figure out a decent approach.  It turns out ATS2 supports static
 lambdas, which made things much easier than expected.
 
 While it seems excessive, the rules of HTML are quite complex.  It's good to have
