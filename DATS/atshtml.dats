@@ -1,4 +1,9 @@
-
+(* 
+ ** Project : atshtml
+ ** Author  : Mark Bellaire
+ ** Year    : 2019
+ ** License : BSD3
+*)
 #include "./../HATS/project.hats"
 #include "share/atspre_staload.hats"
 
@@ -734,26 +739,5 @@ html5_attr_list_out<attr :@: xs><env>( env )
     )
     prval () = strmixed_free_notgc( sm0 )
   } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
  

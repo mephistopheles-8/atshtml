@@ -1,3 +1,9 @@
+(* 
+ ** Project : atshtml
+ ** Author  : Mark Bellaire
+ ** Year    : 2019
+ ** License : BSD3
+*)
 #include "./../HATS/project.hats"
 #include "./../HATS/atshtml_infix.hats"
 staload "./atshtml.sats"

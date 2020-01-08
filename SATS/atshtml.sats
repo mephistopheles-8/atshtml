@@ -1,4 +1,9 @@
-
+(* 
+ ** Project : atshtml
+ ** Author  : Mark Bellaire
+ ** Year    : 2019
+ ** License : BSD3
+*)
 #include "./../HATS/project.hats"
 
 (** Inefficient, but useful bitwise ops in the statics **)

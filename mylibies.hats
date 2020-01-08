@@ -1,4 +1,9 @@
-
+(* 
+ ** Project : atshtml
+ ** Author  : Mark Bellaire
+ ** Year    : 2019
+ ** License : BSD3
+*)
 #ifndef _ATSHTML_MYLIBIES_HATS
 #define _ATSHTML_MYLIBIES_HATS
 
