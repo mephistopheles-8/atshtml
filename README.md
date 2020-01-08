@@ -1,7 +1,7 @@
 # atshtml
 
 `atshtml` is a purely static html templating system for ATS2.  It is currently in 
-the proof-of-concept stage.  
+the proof-of-concept stages. 
 
 Inspired by Haskell libraries like `blaze`,`lucid`, etc, but different in that 
 the HTML represenation has no associated data at runtime.
@@ -10,8 +10,6 @@ GC is not required (and neither is memory-allocation in many cases).
 
 You can do anything with the HTML output by defining `html5$out`; concatenate
 it into a buffer or send it to a socket -- it's up to you.
-
-At this time, it's a proof-of-concept.
 
 ## Why?
 
@@ -32,15 +30,16 @@ While it seems excessive, the rules of HTML are quite complex.  It's good to hav
 them embedded in the system that you are using.  While HTML5 validators work, things get
 tricky for dynamic sites.  I find that wading through the W3C spec is rarely a priority
 while tryinng to get things done. This library should provide a means of validating your
-markup while making progress on other things. 
+markup while making progress on other things.
 
 ## Status
 
 I need to test the static verification a bit further, and see what the boundaries
-are on composability.  I imagine not all W3C rules are encoded.
+are on composability.  Some W3C rules may be missing.
 
 Note that comments, styles and script tags are not escaped, so be careful with 
-those. Attributes and text should be XSS-safe, however.
+those. Attributes and text should be XSS-safe, but the values themselves are
+not verified.
 
 ## How to Use It?
 
@@ -77,10 +76,11 @@ Constraint errors (eg, verifiying the context of an element) can be indiscernabl
 
 I reuse some infix ops in the statics and for the proof system.  I figure the consistency
 is best.  Honestly, I wish I could use the same infix operators for all static list-like ops, but
-it doesn't seem posible. 
+it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` to use infix ops while
+constructing proofs.
 
 Attribute values, CSS and Javascript are still just strings; for the semantics of the values, you're
-largely on your own. 
+largely on your own.  I hope to improve this over time. 
 
 
 LICENSE: BSD3
