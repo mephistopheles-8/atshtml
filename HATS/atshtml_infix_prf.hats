@@ -15,4 +15,12 @@ infixr :*:
 #define ANil ElmAttrsNil
 #define :@: ElmAttrsCons
 
+infixr dldt
+infixr dldd
+infixr dldiv
+
+#define dldt DlDt'
+#define dldd DlDd'
+#define dldiv DlDiv'
+ 
 #endif

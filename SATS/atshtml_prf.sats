@@ -446,6 +446,19 @@ dataprop ElmChildren(par:html5_tag,es:html5_elm_list,cnst: html5_tag -> bool) =
      ElmChildrenCons(par,chi :*: es,cnst) 
       of (ElmChild(par,chi,cnst), ElmChildren(par,es,cnst))
 
+and DlChildren(par:html5_tag,es:html5_elm_list,cnst : html5_tag -> bool,bool) =
+  | DlNil(par,enil,cnst,false)
+  | {attrs,a0:html5_attr_list}{nodes,n0,xs:html5_elm_list}
+    DlDt'(par,dt'(attrs,nodes) :*: dd'(a0,n0) :*: xs,cnst,false) 
+      of (ElmChild(par,dt'(attrs,nodes),cnst), DlChildren(par,dd'(a0,n0) :*: xs,cnst,true))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    {b:bool}
+    DlDd'(par,dd'(attrs,nodes) :*:  xs,cnst,true) 
+      of (ElmChild(par,dd'(attrs,nodes),cnst), DlChildren(par,xs,cnst,b))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    DlDiv'(par,div'(attrs,nodes) :*:  xs,cnst,false) 
+      of ((ElmAttrs(div_,attrs), DlChildren(div_,nodes,cnst,false)), DlChildren(par,xs,cnst,false))
+
 (** Notes: it's assumed that flow content is the most permissive.
     Any items with a content model of "flow" just pass the constraint
     to their children.  More restrictive content models 
@@ -597,18 +610,24 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(dl_)}
     Dl'(par,dl'(attrs,nodes),cnst) 
+      of (ElmAttrs(dl_,attrs), DlChildren(dl_,nodes,cnst,false))
+  (*
+  | {par: html5_tag | html5_content_flow(par) }
+    {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(dl_)}
+    Dl'(par,dl'(attrs,nodes),cnst) 
       of (ElmAttrs(dl_,attrs), ElmChildren(dl_,nodes,cnst))
+  *)
   | {par: html5_tag | par == dl_ || par == div_}
     {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(dt_)}
     Dt'(par,dt'(attrs,nodes),cnst) 
       of (ElmAttrs(dt_,attrs), ElmChildren(dt_,nodes,
         lam(tag) => cnst(tag) && ~is_sectioning(tag)))
   | {par: html5_tag | par == dl_ || par == div_}
     {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(dd_)}
     Dd'(par,dd'(attrs,nodes),cnst) 
       of (ElmAttrs(dd_,attrs), ElmChildren(dd_,nodes,cnst))
+
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(figure_)}
     Figure'(par,figure'(attrs,nodes),cnst) 

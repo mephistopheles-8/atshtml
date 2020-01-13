@@ -23,7 +23,7 @@ implement main0 ()
     stadef countdown = 7
     stadef nothing_to_count = 8
     stadef show_count = 9
-   
+  
     prval pf = 
       Document0(
           ANil
@@ -33,6 +33,18 @@ implement main0 ()
           :*: ENil
         , ANil
         ,     H1'(ANil, Text'{..}{hello_world}() :*: ENil)
+          :*: Dl'(ANil, 
+                Dt'(ANil,ENil) dldt 
+                Dd'(ANil,ENil) dldd 
+                Dd'(ANil,ENil) dldd
+                (ANil, 
+                  Dt'(ANil,ENil) dldt 
+                  Dd'(ANil,ENil) dldd
+                  DlNil) dldiv
+                Dt'(ANil,ENil) dldt 
+                Dd'(ANil,ENil) dldd 
+                DlNil
+              )
           :*: Ul'(ANil,
                 Li'(ANil,Text'{..}{hello_world}() :*: ENil) 
             :*: ENil
