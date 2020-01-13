@@ -52,6 +52,7 @@ stadef html5_content_phrasing( tag : html5_tag ) : bool = (
     tag == q_ || 
     tag == dfn_ || 
     tag == abbr_ || 
+    tag == ruby_ || 
     tag == rb_ || 
     tag == rt_ || 
     tag == rtc_ || 
@@ -72,7 +73,8 @@ stadef html5_content_phrasing( tag : html5_tag ) : bool = (
     tag == span_ || 
     tag == output_ || 
     tag == progress_ || 
-    tag == meter_ 
+    tag == meter_ || 
+    tag == picture_ 
   )
 
 dataprop ElmAttrs(tag:html5_tag,ax:html5_attr_list) = 
@@ -495,7 +497,7 @@ and RubyChildren(es:html5_elm_list,cnst : html5_tag -> bool,int) =
       of (ElmChild(ruby_,rb'(attrs,nodes),cnst), RubyChildren(xs,cnst,0))
   | {elm:html5_elm}{xs:html5_elm_list}
     RubyPhrasing'(elm :*: xs,cnst,0) 
-      of (ElmChild(ruby_,elm,cnst), RubyChildren(xs,cnst,0))
+      of (ElmChild(ruby_,elm,lam(tag) => cnst(tag) && tag != rtc_ && tag != rt_ && tag != rb_ && tag != rp_), RubyChildren(xs,cnst,0))
   (** One or more rtc or rt elements, immediately preceded or followed by an rp element **)
   | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}{i:int | i == 0 || i == ~1}
     RubyRtc'(rtc'(attrs,nodes) :*: xs,cnst,i + 1) 
@@ -507,9 +509,38 @@ and RubyChildren(es:html5_elm_list,cnst : html5_tag -> bool,int) =
     RubyRp'(rp'(attrs,nodes) :*: xs,cnst,i - 1) 
       of (ElmChild(ruby_,rp'(attrs,nodes),cnst), RubyChildren(xs,cnst,i))
 
+and MediaChildren(par:html5_tag,es:html5_elm_list,cnst : html5_tag -> bool,int) =
+  | MediaNil(par,enil,cnst,0)
+  | {elm:html5_elm}{es:html5_elm_list} 
+    MediaElm(par,elm :*: es,cnst,0)
+      (** This is messier than I would like, but not sure how to exclude source tags here;
+          Still, Media elms cannot contain other media elms, so this is probably not an issue **)
+      of (ElmChild(par,elm,lam(tag) => cnst(tag) && tag != source_ && tag != track_), MediaChildren(par,es,cnst,0))
+  | {attrs:html5_attr_list}{es:html5_elm_list}{i:int | i == 0 || i == 1}
+    MediaTrack'(par,track'(attrs) :*: es, cnst, 1 )
+      of (ElmChild(par,track'(attrs),cnst), MediaChildren(par,es,cnst,i))
+  | {attrs:html5_attr_list}{es:html5_elm_list}{i:int | i == 0 || i == 1 || i == 2}
+    MediaSource'(par,source'(attrs) :*: es, cnst, 2 )
+      of (ElmChild(par,source'(attrs),cnst), MediaChildren(par,es,cnst,i))
+      
+and PictureChildren(es:html5_elm_list,cnst : html5_tag -> bool,int) =
+  | PictureNil(enil,cnst,0)
+  | {attrs:html5_attr_list}{es:html5_elm_list} 
+    PictureImg'(img'(attrs) :*: es,cnst,1)
+      of (ElmChild(picture_,img'(attrs),cnst), PictureChildren(es,cnst,0))
+  | {attrs:html5_attr_list}{es:html5_elm_list}{i:int | i == 2 || i == 1}
+    PictureSource'(source'(attrs) :*: es, cnst, 2   )
+      of (ElmChild(picture_,source'(attrs),cnst), PictureChildren(es,cnst,i))
 
-
-
+and FieldsetChildren(es:html5_elm_list,cnst : html5_tag -> bool,bool) =
+  | FieldsetNil(enil,cnst,false)
+  | {attrs:html5_attr_list}{nodes,es:html5_elm_list} 
+    FieldsetLegend'(legend'(attrs,nodes) :*: es,cnst,true)
+      of (ElmChild(fieldset_,legend'(attrs,nodes),cnst), FieldsetChildren(es,cnst,false))
+  | {elm:html5_elm}{es:html5_elm_list} 
+    FieldsetFlow'(elm :*: es,cnst,false)
+      (** This is messier than I would like, but not sure how to exclude source tags here; **)
+      of (ElmChild(fieldset_,elm,lam(tag) => cnst(tag) && tag != legend_), FieldsetChildren(es,cnst,false))
 (** Notes: it's assumed that flow content is the most permissive.
     Any items with a content model of "flow" just pass the constraint
     to their children.  More restrictive content models 
@@ -758,19 +789,15 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(ruby_,attrs), RubyChildren(nodes,cnst,0))
 
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(rb_)}
     Rb'(ruby_,rb'(attrs,nodes),cnst) 
       of (ElmAttrs(rb_,attrs), ElmChildren(rb_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(rt_)}
     Rt'(ruby_,rt'(attrs,nodes),cnst) 
       of (ElmAttrs(rt_,attrs), ElmChildren(rt_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(rtc_)}
     Rtc'(ruby_,rtc'(attrs,nodes),cnst) 
       of (ElmAttrs(rtc_,attrs), ElmChildren(rtc_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(rp_)}
     Rp'(ruby_,rp'(attrs,nodes),cnst) 
       of (ElmAttrs(rp_,attrs), ElmChildren(rp_,nodes,cnst))
   | {par: html5_tag | html5_content_phrasing(par) }
@@ -866,14 +893,21 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {cnst(del_)}
     Del'(par,del'(attrs,nodes),cnst) 
       of (ElmAttrs(del_,attrs), ElmChildren(par,nodes,cnst)) // transparent
+  (*
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(picture_)}
     Picture'(par,picture'(attrs,nodes),cnst) 
       of (ElmAttrs(picture_,attrs), ElmChildren(picture_,nodes,cnst))
+  *)
+  | {par: html5_tag | html5_content_phrasing(par) }
+    {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(picture_)}{i:int | i == 1 || i == 2}
+    Picture'(par,picture'(attrs,nodes),cnst) 
+      of (ElmAttrs(picture_,attrs), PictureChildren(nodes,cnst,i))
+
   | {par: html5_tag | par == picture_ || par == audio_ || par == video_}
     {attrs:html5_attr_list} 
-    {cnst(source_)}
     Source'(par,source'(attrs),cnst)  of ElmAttrs(source_,attrs)
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list} 
@@ -896,16 +930,30 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
   | {attrs:html5_attr_list} 
     {cnst(param_)}
     Param'(object_,param'(attrs),cnst)  of ElmAttrs(param_,attrs)
+  (*
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(video_)}
     Video'(par,video'(attrs,nodes),cnst) 
       of (ElmAttrs(video_,attrs), ElmChildren(par,nodes,cnst)) // transparent
+  *)
+  | {par: html5_tag | html5_content_phrasing(par) }
+    {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(video_)}{i:int}
+    Video'(par,video'(attrs,nodes),cnst) 
+      of (ElmAttrs(video_,attrs), MediaChildren(par,nodes,cnst,i)) // transparent
+  (*
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(audio_)}
     Audio'(par,audio'(attrs,nodes),cnst) 
       of (ElmAttrs(audio_,attrs), ElmChildren(par,nodes,cnst)) // transparent
+  *)
+  | {par: html5_tag | html5_content_phrasing(par) }
+    {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(audio_)}{i:int}
+    Audio'(par,audio'(attrs,nodes),cnst) 
+      of (ElmAttrs(audio_,attrs), MediaChildren(par,nodes,cnst,i)) // transparent
   | {par: html5_tag | par == audio_ || par == video_}
     {attrs:html5_attr_list} 
     {cnst(track_)}
@@ -948,36 +996,28 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
       of (ElmAttrs(caption_,attrs), ElmChildren(caption_,nodes,
         lam(tag) => cnst(tag) && tag != table_))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(colgroup_)}
     Colgroup'(par,colgroup'(attrs,nodes),cnst) 
       of (ElmAttrs(colgroup_,attrs), ElmChildren(colgroup_,nodes,cnst))
   | {attrs:html5_attr_list} 
-    {cnst(col_)}
     Col'(par,col'(attrs),cnst)  of ElmAttrs(col_,attrs)
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(tbody_)}
     Tbody'(table_,tbody'(attrs,nodes),cnst) 
       of (ElmAttrs(tbody_,attrs), ElmChildren(tbody_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(thead_)}
     Thead'(table_,thead'(attrs,nodes),cnst) 
       of (ElmAttrs(thead_,attrs), ElmChildren(thead_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(tfoot_)}
     Tfoot'(table_,tfoot'(attrs,nodes),cnst) 
       of (ElmAttrs(tfoot_,attrs), ElmChildren(tfoot_,nodes,cnst))
   | {par:html5_tag | par == table_ || par == tbody_ || par == thead_ || par == tfoot_}
     {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(tr_)}
     Tr'(par,tr'(attrs,nodes),cnst) 
       of (ElmAttrs(tr_,attrs), ElmChildren(tr_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(td_)}
-    Td'(par,td'(attrs,nodes),cnst) 
+    Td'(tr_,td'(attrs,nodes),cnst) 
       of (ElmAttrs(td_,attrs), ElmChildren(td_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(th_)}
-    Th'(par,th'(attrs,nodes),cnst) 
+    Th'(tr_,th'(attrs,nodes),cnst) 
       of (ElmAttrs(th_,attrs), ElmChildren(th_,nodes,
         lam(tag) => cnst(tag) && ~is_sectioning(tag)))
   | {par: html5_tag | html5_content_flow(par) }
@@ -1044,11 +1084,18 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     Meter'(par,meter'(attrs,nodes),cnst) 
       of (ElmAttrs(meter_,attrs), ElmChildren(meter_,nodes,
         lam(tag) => cnst(tag) && tag != meter_))
+    (*
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(fieldset_)}
     Fieldset'(par,fieldset'(attrs,nodes),cnst) 
       of (ElmAttrs(fieldset_,attrs), ElmChildren(fieldset_,nodes,cnst))
+    *)
+  | {par: html5_tag | html5_content_flow(par) }
+    {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(fieldset_)}{b:bool}
+    Fieldset'(par,fieldset'(attrs,nodes),cnst) 
+      of (ElmAttrs(fieldset_,attrs), FieldsetChildren(nodes,cnst,b))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(legend_)}
     Legend'(fieldset_,legend'(attrs,nodes),cnst) 

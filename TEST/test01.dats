@@ -45,6 +45,24 @@ implement main0 ()
                 Dd'(ANil,ENil) dldd 
                 DlNil
               )
+          :*: Ruby'(ANil, 
+                Rb'(ANil,ENil) rbrb
+                Span'(ANil,ENil) rbphrs
+                Rt'(ANil,ENil) rbrt 
+                Rp'(ANil,ENil) rbrp 
+                Rp'(ANil,ENil) rbrp 
+                Rtc'(ANil,ENil) rbrtc 
+               rbnil )
+          :*: Picture'(ANil,
+                Source'(ANil) picsource
+                Source'(ANil) picsource
+                Img'(ANil) picimg
+                picnil )
+          :*: Table'(ANil,
+                 Thead'(ANil,ENil) tblthead
+                 Tbody'(ANil,Tr'(ANil,Td'(ANil,ENil) :*: ENil) :*: ENil) tbltbody
+                 Tfoot'(ANil,ENil) tbltfoot
+                 tblnil )
           :*: Ul'(ANil,
                 Li'(ANil,Text'{..}{hello_world}() :*: ENil) 
             :*: ENil
