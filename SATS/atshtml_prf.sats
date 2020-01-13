@@ -459,6 +459,57 @@ and DlChildren(par:html5_tag,es:html5_elm_list,cnst : html5_tag -> bool,bool) =
     DlDiv'(par,div'(attrs,nodes) :*:  xs,cnst,false) 
       of ((ElmAttrs(div_,attrs), DlChildren(div_,nodes,cnst,false)), DlChildren(par,xs,cnst,false))
 
+and TableChildren(es:html5_elm_list,cnst : html5_tag -> bool,int) =
+  | TableNil(enil,cnst,0)
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    {x:nat | x <= 5}
+    TableCaption'(caption'(attrs,nodes) :*:  xs,cnst,6) 
+      of (ElmChild(table_,caption'(attrs,nodes),cnst), TableChildren(xs,cnst,x))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    {x:nat | x <= 4 }
+    TableColgroup'(colgroup'(attrs,nodes) :*:  xs,cnst,5) 
+      of (ElmChild(table_,colgroup'(attrs,nodes),cnst), TableChildren(xs,cnst,x))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    {x:nat | x <= 3}
+    TableThead'(thead'(attrs,nodes) :*:  xs,cnst,4) 
+      of (ElmChild(table_,thead'(attrs,nodes),cnst), TableChildren(xs,cnst,x))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    {x:nat | x <= 3 && x != 2}
+    TableTbody'(tbody'(attrs,nodes) :*:  xs,cnst,3) 
+      of (ElmChild(table_,tbody'(attrs,nodes),cnst), TableChildren(xs,cnst,x))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    {x:nat | x <= 2} 
+      (** According to the spec, we need 1 or more tr, but 0 or
+       more tbody; what's the difference between 0 tr and 0 tbody? *)
+    TableTr'(tr'(attrs,nodes) :*:  xs,cnst,2) 
+      of (ElmChild(table_,tr'(attrs,nodes),cnst), TableChildren(xs,cnst,x))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    TableTfoot'(tfoot'(attrs,nodes) :*:  xs,cnst,1) 
+      of (ElmChild(table_,tfoot'(attrs,nodes),cnst), TableChildren(xs,cnst,0))
+
+and RubyChildren(es:html5_elm_list,cnst : html5_tag -> bool,int) =
+  | RubyNil(enil,cnst,0)
+  (** One or more phrasing or rb elements **)
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}
+    RubyRb'(rb'(attrs,nodes) :*: xs,cnst,0) 
+      of (ElmChild(ruby_,rb'(attrs,nodes),cnst), RubyChildren(xs,cnst,0))
+  | {elm:html5_elm}{xs:html5_elm_list}
+    RubyPhrasing'(elm :*: xs,cnst,0) 
+      of (ElmChild(ruby_,elm,cnst), RubyChildren(xs,cnst,0))
+  (** One or more rtc or rt elements, immediately preceded or followed by an rp element **)
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}{i:int | i == 0 || i == ~1}
+    RubyRtc'(rtc'(attrs,nodes) :*: xs,cnst,i + 1) 
+      of (ElmChild(ruby_,rtc'(attrs,nodes),cnst), RubyChildren(xs,cnst,i))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}{i:int | i == 0 || i == ~1 }
+    RubyRt'(rt'(attrs,nodes) :*: xs,cnst,i + 1) 
+      of (ElmChild(ruby_,rt'(attrs,nodes),cnst), RubyChildren(xs,cnst,i))
+  | {attrs:html5_attr_list}{nodes,xs:html5_elm_list}{i:int | i == 0 || i == 1}
+    RubyRp'(rp'(attrs,nodes) :*: xs,cnst,i - 1) 
+      of (ElmChild(ruby_,rp'(attrs,nodes),cnst), RubyChildren(xs,cnst,i))
+
+
+
+
 (** Notes: it's assumed that flow content is the most permissive.
     Any items with a content model of "flow" just pass the constraint
     to their children.  More restrictive content models 
@@ -693,27 +744,34 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {cnst(abbr_)}
     Abbr'(par,abbr'(attrs,nodes),cnst) 
       of (ElmAttrs(abbr_,attrs), ElmChildren(abbr_,nodes,cnst))
+  (*
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(ruby_)}
     Ruby'(par,ruby'(attrs,nodes),cnst) 
       of (ElmAttrs(ruby_,attrs), ElmChildren(ruby_,nodes,cnst))
+  *)
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(ruby_)}
+    Ruby'(par,ruby'(attrs,nodes),cnst) 
+      of (ElmAttrs(ruby_,attrs), RubyChildren(nodes,cnst,0))
+
+  | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(rb_)}
-    Rb'(par,rb'(attrs,nodes),cnst) 
+    Rb'(ruby_,rb'(attrs,nodes),cnst) 
       of (ElmAttrs(rb_,attrs), ElmChildren(rb_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(rt_)}
-    Rt'(par,rt'(attrs,nodes),cnst) 
+    Rt'(ruby_,rt'(attrs,nodes),cnst) 
       of (ElmAttrs(rt_,attrs), ElmChildren(rt_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(rtc_)}
-    Rtc'(par,rtc'(attrs,nodes),cnst) 
+    Rtc'(ruby_,rtc'(attrs,nodes),cnst) 
       of (ElmAttrs(rtc_,attrs), ElmChildren(rtc_,nodes,cnst))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(rp_)}
-    Rp'(par,rp'(attrs,nodes),cnst) 
+    Rp'(ruby_,rp'(attrs,nodes),cnst) 
       of (ElmAttrs(rp_,attrs), ElmChildren(rp_,nodes,cnst))
   | {par: html5_tag | html5_content_phrasing(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
@@ -872,11 +930,18 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
     {cnst(math_)}
     Math'(par,math'(attrs,nodes),cnst) 
       of (ElmAttrs(math_,attrs), ElmChildren(math_,nodes,cnst))
+  (*
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(table_)}
     Table'(par,table'(attrs,nodes),cnst) 
       of (ElmAttrs(table_,attrs), ElmChildren(table_,nodes,cnst))
+  *)
+  | {par: html5_tag | html5_content_flow(par) }
+    {attrs:html5_attr_list}{nodes:html5_elm_list}
+    {cnst(table_)}{x:int | x != 2}
+    Table'(par,table'(attrs,nodes),cnst) 
+      of (ElmAttrs(table_,attrs), TableChildren(nodes,cnst,x))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
     {cnst(caption_)}
     Caption'(par,caption'(attrs,nodes),cnst) 
