@@ -43,9 +43,7 @@ not verified.
 Not finished yet:
 - MathML/SVG are not yet implemented
 - `data-*` attributes
-- Elements requiring verification of sequence are not fully implemented (`<table>`, `<dl>`, 
-  `<ruby>`, etc). 
-- Various tests; usability, amongst other things.
+- Various tests.
 
 The `datasort` API should mostly work as expected, but the proof API will be subject
 to gradual refinement over time.
