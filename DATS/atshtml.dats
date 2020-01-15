@@ -751,7 +751,7 @@ implement (id,kind,xs0,xs1,env:vt@ype+)
 html5_attr_out<html5_attr_either(xs0,xs1,id)><env>( env ) 
   = {
      val () 
-      = if html5$attr$opt_issome<id><env>( env ) 
+      = if html5$attr$either_isleft<id><env>( env ) 
         then html5_attr_list_out<xs0><env>( env )
         else html5_attr_list_out<xs1><env>( env ) 
    }
