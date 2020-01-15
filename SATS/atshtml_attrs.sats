@@ -41,7 +41,7 @@ stadef challenge$(id) : html5_attr
 stadef charset$(id) : html5_attr 
    = html5_attr(_charset,id)
 stadef checked$(id) : html5_attr 
-   = html5_attr(_checked,id)
+   = html5_attr_void(_checked,id)
 stadef cite$(id) : html5_attr 
    = html5_attr(_cite,id)
 stadef class$(id) : html5_attr 

@@ -474,8 +474,12 @@ html5_attr_out$kind<_wrap>() = "wrap"
 implement (a:t@ype+) 
 html5$free<a>( x ) = ()
 
+implement (id,a:t@ype+)
+html5$push<id><a,a>( e0 ) = e0
+
 implement {id}{env1,env2}
-html5$pop( e0, e1 ) = ()
+html5$pop( e0, e1 ) = 
+  html5$free<env2>(e1)
 
 fun {env:vt@ype+}
 html5_out_escaped( env: &env, sm0: !strmixed0 ) : void 
@@ -685,7 +689,7 @@ html5_elm_out<html5_elm_frame(env1,xs0,id)><env0>( env )
         = html5$push<id><env0,env1>(env) 
     val () = html5_elm_list_out<xs0><env1>( env_ )
     val () = html5$pop<id><env0,env1>(env,env_)
-    val () = html5$free<env1>(env_)
+    //val () = html5$free<env1>(env_)
   }
 
 implement (env:vt@ype+)
@@ -722,6 +726,35 @@ html5_attr_out<html5_attr(kind,id)><env>( env )
       val () = strmixed_free( sm2 )
       prval () = strmixed_free_notgc( sm3 )
   }
+
+implement (id,kind,env:vt@ype+) 
+html5_attr_out<html5_attr_void(kind,id)><env>( env ) 
+  = {
+      
+      val sm = string2mixed(html5_attr_out$kind<kind>())
+
+      val () = if html5$attr_void<id>( env ) then html5$out<env>(env,sm);
+      
+      val () = strmixed_free( sm )
+  }
+
+implement (id,kind,xs,env:vt@ype+) 
+html5_attr_out<html5_attr_opt(xs,id)><env>( env ) 
+  = {
+     val () 
+      = if html5$attr$opt_issome<id><env>( env ) 
+        then html5_attr_list_out<xs><env>(env)
+        else () 
+  }
+
+implement (id,kind,xs0,xs1,env:vt@ype+) 
+html5_attr_out<html5_attr_either(xs0,xs1,id)><env>( env ) 
+  = {
+     val () 
+      = if html5$attr$opt_issome<id><env>( env ) 
+        then html5_attr_list_out<xs0><env>( env )
+        else html5_attr_list_out<xs1><env>( env ) 
+   }
 
 
 implement (env:vt@ype+)

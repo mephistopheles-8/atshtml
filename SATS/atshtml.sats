@@ -429,7 +429,8 @@ stadef math_semantics = 31
     sense, the attribute kind is never truely dynamic
 **)
 datasort html5_attr =
-  | html5_attr of (html5_attr_kind,int)
+  | html5_attr      of (html5_attr_kind,int)
+  | html5_attr_void of (html5_attr_kind,int)
   
   (** Combinators **)
   (** Simple conditional **)
@@ -472,6 +473,9 @@ and html5_elm_list =
 (** Attr value **)
 fun {id:int}{env:vt@ype+}
   html5$attr( &env ) : strmixed1
+(** Attr void: true or false **)
+fun {id:int}{env:vt@ype+}
+  html5$attr_void( &env ) : bool
 
 (** Script text **)
 fun {id:int}{env:vt@ype+}
@@ -495,7 +499,7 @@ fun {id:int}{env0,env1:vt@ype+}
   html5$push( &env0 ) : env1
 
 fun {id:int}{env0,env1:vt@ype+}
-  html5$pop( &env0, &env1 ) : void
+  html5$pop( &env0, env1 ) : void
 
 fun {env1:vt@ype+}
   html5$free( env1 ) : void
