@@ -489,26 +489,15 @@ html5_out_escaped( env: &env, sm0: !strmixed0 ) : void
             implement
             strmixed_foreach$fwork<env>( c, env ) 
               = {
-                var buf = @[char][2]('\0') 
-                val s : string
+                val ()
                   = ( case+ c of
-                    | '"' => "&quot;" 
-                    | '&' => "&amp;"
-                    | '\''=> "&apos;"
-                    | '>' => "&gt;"
-                    | '<' => "&lt;"
-                    |  c  => $UNSAFE.castvwtp1{string}( addr@buf )
-                        where { 
-                          val () = buf[0] := c
-                        } 
-                    ) : string
-
-                val sm0 = string2mixed( s )
-
-                val () = html5$out<env>(env,sm0)
-
-                prval () = strmixed_free_notgc( sm0 )
-
+                    | '"' => html5$out<string><env>(env,"&quot;") 
+                    | '&' => html5$out<string><env>(env,"&amp;")
+                    | '\''=> html5$out<string><env>(env,"&apos;")
+                    | '>' => html5$out<string><env>(env,"&gt;")
+                    | '<' => html5$out<string><env>(env,"&lt;")
+                    |  c  => html5$out<char><env>(env,c) 
+                  )
               }
         }
   } 
@@ -516,129 +505,85 @@ html5_out_escaped( env: &env, sm0: !strmixed0 ) : void
 implement (env:vt@ype+)
 html5_elm_out<html5_elm_doctype><env>( env ) 
   = {
-      val sm = string2mixed( "<!DOCTYPE html>" ) 
-      val () = html5$out<env>(env,sm)
-      prval () = strmixed_free_notgc( sm )
+      val sm = html5$out<string><env>(env, "<!DOCTYPE html>" ) 
     } 
 
 implement (tag,attrs,env:vt@ype+)
 html5_elm_out<html5_elm_void(tag,attrs)><env>( env ) 
   = {
-      val @(sm0,sm1,sm2) = @(
-        string2mixed( "<" ), string2mixed(html5_elm_out$tag<tag>()), string2mixed(">")
-      ) 
       val () = (
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm1); 
+          html5$out<string><env>(env,"<");
+          html5$out<string><env>(env,html5_elm_out$tag<tag>()); 
           html5_attr_list_out<attrs><env>(env);
-          html5$out<env>(env,sm2); 
+          html5$out<string><env>(env,">");
       )
-      prval () = strmixed_free_notgc( sm0 )
-      prval () = strmixed_free_notgc( sm1 )
-      prval () = strmixed_free_notgc( sm2 )
     } 
 
 implement (tag,attrs,children,env:vt@ype+)
 html5_elm_out<html5_elm_normal(tag,attrs,children)><env>( env ) 
   = { 
-      val @(sm0,sm1,sm2,sm3) = @(
-        string2mixed( "<" ), string2mixed(html5_elm_out$tag<tag>()), string2mixed(">"), string2mixed("/")
-      ) 
+      val tag0 = html5_elm_out$tag<tag>() 
       val () = (
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm1); 
+          html5$out<string><env>(env,"<");
+          html5$out<string><env>(env,tag0); 
           html5_attr_list_out<attrs><env>(env);
-          html5$out<env>(env,sm2);
+          html5$out<string><env>(env,">");
           html5_elm_list_out<children><env>(env);
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm3);
-          html5$out<env>(env,sm1); 
-          html5$out<env>(env,sm2); 
+          html5$out<string><env>(env,"</");
+          html5$out<string><env>(env,tag0);
+          html5$out<string><env>(env,">"); 
       )
-      prval () = strmixed_free_notgc( sm0 )
-      prval () = strmixed_free_notgc( sm1 )
-      prval () = strmixed_free_notgc( sm2 )
-      prval () = strmixed_free_notgc( sm3 )
     } 
 
 implement (id,attrs,env:vt@ype+)
 html5_elm_out<html5_elm_script(attrs,id)><env>( env )
   = {
-      val @(sm0,sm1,sm2,sm3,sm4) = @(
-        string2mixed( "<" )
-      , string2mixed(html5_elm_out$tag<script_>())
-      , string2mixed(">")
-      , string2mixed("/")
-      , html5$script<id><env>( env )
-      )
  
+      val script0 =  html5_elm_out$tag<script_>()
+      val txt = html5$script<id><env>( env )
       val () = (
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm1); 
+          html5$out<string><env>(env,"<");
+          html5$out<string><env>(env,script0); 
           html5_attr_list_out<attrs><env>(env);
-          html5$out<env>(env,sm2);
-          html5$out<env>(env,sm4);
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm3);
-          html5$out<env>(env,sm1); 
-          html5$out<env>(env,sm2); 
+          html5$out<string><env>(env,">");
+          html5$out<strmixed1><env>(env,txt);
+          html5$out<string><env>(env,"</");
+          html5$out<string><env>(env,script0);
+          html5$out<string><env>(env,">"); 
       )
 
-      prval () = strmixed_free_notgc( sm0 )
-      prval () = strmixed_free_notgc( sm1 )
-      prval () = strmixed_free_notgc( sm2 )
-      prval () = strmixed_free_notgc( sm3 )
-      val   () = strmixed_free( sm4 )
+      val   () = strmixed_free( txt )
   }
 
 implement (id,attrs,env:vt@ype+)
 html5_elm_out<html5_elm_style(attrs,id)><env>( env )
   = {
-      val @(sm0,sm1,sm2,sm3,sm4) = @(
-        string2mixed( "<" )
-      , string2mixed(html5_elm_out$tag<style_>())
-      , string2mixed(">")
-      , string2mixed("/")
-      , html5$style<id><env>( env )
-      )
- 
+      val style0 =  html5_elm_out$tag<style_>()
+      val txt = html5$style<id><env>( env )
       val () = (
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm1); 
+          html5$out<string><env>(env,"<");
+          html5$out<string><env>(env,style0); 
           html5_attr_list_out<attrs><env>(env);
-          html5$out<env>(env,sm2);
-          html5$out<env>(env,sm4);
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm3);
-          html5$out<env>(env,sm1); 
-          html5$out<env>(env,sm2); 
+          html5$out<string><env>(env,">");
+          html5$out<strmixed1><env>(env,txt);
+          html5$out<string><env>(env,"</");
+          html5$out<string><env>(env,style0);
+          html5$out<string><env>(env,">"); 
       )
 
-      prval () = strmixed_free_notgc( sm0 )
-      prval () = strmixed_free_notgc( sm1 )
-      prval () = strmixed_free_notgc( sm2 )
-      prval () = strmixed_free_notgc( sm3 )
-      val   () = strmixed_free( sm4 )
+      val   () = strmixed_free( txt )
   }
 
 implement (id,attrs,env:vt@ype+)
 html5_elm_out<html5_elm_comment(id)><env>( env )
   = {
-      val @(sm0,sm1,sm2) = @(
-        string2mixed( "<-- " )
-      , string2mixed(" -->")
-      , html5$comment<id><env>( env )
-      )
- 
+      val txt = html5$comment<id><env>( env )
       val () = (
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm2);
-          html5$out<env>(env,sm1); 
+          html5$out<string><env>(env,"<!-- ");
+          html5$out<strmixed1><env>(env,txt);
+          html5$out<string><env>(env," -->"); 
       )
-
-      prval () = strmixed_free_notgc( sm0 )
-      prval () = strmixed_free_notgc( sm1 )
-      val   () = strmixed_free( sm2 )
+      val   () = strmixed_free( txt )
   }
 
 
@@ -706,36 +651,42 @@ html5_elm_list_out<elm :*: xs><env>( env )
 implement (id,kind,env:vt@ype+) 
 html5_attr_out<html5_attr(kind,id)><env>( env ) 
   = {
-      val @(sm0,sm1,sm2,sm3) = @(
-        string2mixed( "=" )
-      , string2mixed("\"")
-      , html5$attr<id><env>( env )
-      , string2mixed(html5_attr_out$kind<kind>())
-      )
-
+      val attr = html5_attr_out$kind<kind>()
+      val v = html5$attr<id><env>(env)
       val () = (
-          html5$out<env>(env,sm3);
-          html5$out<env>(env,sm0);
-          html5$out<env>(env,sm1);
-          html5_out_escaped<env>(env,sm2);
-          html5$out<env>(env,sm1); 
+          html5$out<string><env>(env,attr);
+          html5$out<string><env>(env,"=\"");
+          html5_out_escaped<env>(env,v);
+          html5$out<string><env>(env,"\"");
       )
+      val () = strmixed_free( v )
+  }
 
-      prval () = strmixed_free_notgc( sm0 )
-      prval () = strmixed_free_notgc( sm1 )
-      val () = strmixed_free( sm2 )
-      prval () = strmixed_free_notgc( sm3 )
+implement (k,v,env:vt@ype+) 
+html5_attr_out<html5_attr_data(k,v)><env>( env ) 
+  = {
+      val k = html5$attr_data_key<k><env>( env )
+      val v = html5$attr_data_value<v><env>( env )
+      val () = (
+          html5$out<string><env>(env,"data-");
+          html5$out<strmixed1><env>(env,k);
+          html5$out<string><env>(env,"=\"");
+          html5_out_escaped<env>(env,v);
+          html5$out<string><env>(env,"\"");
+      )
+      val () = strmixed_free( k )
+      val () = strmixed_free( v )
   }
 
 implement (id,kind,env:vt@ype+) 
 html5_attr_out<html5_attr_void(kind,id)><env>( env ) 
   = {
-      
-      val sm = string2mixed(html5_attr_out$kind<kind>())
 
-      val () = if html5$attr_void<id>( env ) then html5$out<env>(env,sm);
-      
-      val () = strmixed_free( sm )
+      val () = 
+        if html5$attr_void<id>( env ) 
+        then html5$out<string><env>(env,tag0) where {
+          val tag0 = html5_attr_out$kind<kind>()
+        }
   }
 
 implement (id,kind,xs,env:vt@ype+) 
@@ -763,14 +714,12 @@ html5_attr_list_out<anil><env>( env ) = ()
 implement (env:vt@ype+,xs,attr)
 html5_attr_list_out<attr :@: xs><env>( env ) 
   =  {
-    val sm0 = string2mixed(" ")
     val () = (
-      html5$out<env>(env,sm0);
+      html5$out<string><env>(env," ");
       html5_attr_out<attr><env>( env );
       html5_attr_list_out<xs><env>( env );
       ignoret(5);
     )
-    prval () = strmixed_free_notgc( sm0 )
   } 
 
  

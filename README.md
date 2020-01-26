@@ -42,11 +42,10 @@ not verified.
 
 Not finished yet:
 - MathML/SVG are not yet implemented
-- `data-*` attributes
 - Various tests.
 
-The `datasort` API should mostly work as expected, but the proof API will be subject
-to gradual refinement over time.
+The `datasort` API should mostly work as expected, but the proof API may not cover
+all cases, and will be subject to gradual refinement over time.
 
 ## How to Use It?
 
@@ -65,8 +64,12 @@ Much of the W3C spec is encoded, but there may be some missing pieces.
  
 That depends: some people really don't like eDSLs.  And really, does HTML verification matter anyway?  :) 
 
+The proof eDSL is a bit more complex than I would like, but all verification is opt-in.  The library does
+demonstrate a manner in which one might actuate a proof using datasorts and templates in ATS2. 
+
 I do think it can be more concise than HTML, and any dynamic content is reusable after the 
-initial implementation (attribute values, text fields, etc). 
+initial implementation (attribute values, text fields, etc).  The structure of a document can
+be preserved, even when, say, translating it to another language.
 
 ## Caveats
 
@@ -86,8 +89,9 @@ is best.  Honestly, I wish I could use the same infix operators for all static l
 it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` in your scope to use infix ops while
 constructing proofs.
 
-Attribute values, CSS and Javascript are still just strings; for the semantics of the values, you're
-largely on your own.  I hope to improve this over time. 
+The scope of this library is only HTML: attribute values, data attribute keys, comments, CSS and javascript are unescaped
+strings, and can break things.  The hopes are that this library is easy enough to extend
+to address these issues later on. 
 
 
 LICENSE: BSD3

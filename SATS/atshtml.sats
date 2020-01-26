@@ -431,6 +431,7 @@ stadef math_semantics = 31
 datasort html5_attr =
   | html5_attr      of (html5_attr_kind,int)
   | html5_attr_void of (html5_attr_kind,int)
+  | html5_attr_data of (int,int) (** (data key, data value) **)
   
   (** Combinators **)
   (** Simple conditional **)
@@ -476,6 +477,12 @@ fun {id:int}{env:vt@ype+}
 (** Attr void: true or false **)
 fun {id:int}{env:vt@ype+}
   html5$attr_void( &env ) : bool
+
+(** Data attributes; key, value **)
+fun {id:int}{env:vt@ype+}
+  html5$attr_data_key( &env ) : strmixed1
+fun {id:int}{env:vt@ype+}
+  html5$attr_data_value( &env ) : strmixed1
 
 (** Script text **)
 fun {id:int}{env:vt@ype+}
@@ -534,8 +541,9 @@ fun {id:int}{env:vt@ype+}
 fun {id:int}{env:vt@ype+}
   html5$elm$opt_issome( &env ) : bool
 
-fun {env:vt@ype+}
-  html5$out( &env, !strmixed1 ) : void
+(** Type `a` will be strmixed1, string, Strptr1, or byte **)
+fun {a:vt@ype+}{env:vt@ype+}
+  html5$out( &env, !a ) : void
 
 (** ** ** ** ** **)
 

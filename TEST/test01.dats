@@ -112,7 +112,11 @@ implement main0 ()
       ) :*: enil
 
     implement
-    html5$out<int>( x, sm ) = print!(UN_mixed_borrow(sm))
+    html5$out<strmixed1><int>( x, sm ) = print!(UN_mixed_borrow(sm))
+    implement
+    html5$out<char><int>( x, sm ) = print!(sm)
+    implement
+    html5$out<string><int>( x, sm ) = print!(sm)
 
     implement
     html5$attr<utf8><int>( x )      = s2m("utf-8")
@@ -121,7 +125,7 @@ implement main0 ()
     implement
     html5$text<page_title><int>( x )  = s2m("Hello world")
     implement
-    html5$text<hello_world><int>( x ) = s2m("Hello world")
+    html5$text<hello_world><int>( x ) = s2m("Hello world: Здравствуйте")
     implement
     html5$text<show_count><int>( x ) = strptr2mixed(tostrptr_int(x))
     implement

@@ -234,7 +234,11 @@ implement main0 ()
     var x : myrecord = @{name = "Sarah", active = true }
 
     implement (a)
-    html5$out<a>( x, sm ) = print!(UN_mixed_borrow(sm))
+    html5$out<strmixed1><a>( x, sm ) = print!(UN_mixed_borrow(sm))
+    implement (a)
+    html5$out<char><a>( x, sm ) = print!(sm)
+    implement (a)
+    html5$out<string><a>( x, sm ) = print!(sm)
 
     val () = println!("html5_rep_myrecord:")
     val () = html5_elm_list_out<html5_rep_myrecord(0) :*: enil><myrecord>( x ) 

@@ -174,6 +174,7 @@ and ElmAttr(par:html5_tag,html5_attr) =
   | {id:int} Coords$(area_,coords$(id))
   | {id:int} Crossorigin$(par,crossorigin$(id))
   | {id:int} Data$(object_,data$(id))
+  | {k,v:int} DataKv$(par,data_kv$(k,v))
   | {id:int} {
         par == del_ ||
         par == ins_ ||

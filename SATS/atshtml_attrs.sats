@@ -70,8 +70,8 @@ stadef crossorigin$(id) : html5_attr
    = html5_attr(_crossorigin,id)
 stadef data$(id) : html5_attr 
    = html5_attr(_data,id)
-stadef data$(id) : html5_attr 
-   = html5_attr(_data,id)
+stadef data_kv$(k,v) : html5_attr 
+   = html5_attr_data(k,v)
 stadef datetime$(id) : html5_attr 
    = html5_attr(_datetime,id)
 stadef default$(id) : html5_attr 
