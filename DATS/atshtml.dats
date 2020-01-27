@@ -679,7 +679,7 @@ html5_attr_out<html5_attr_data(k,v)><env>( env )
   }
 
 implement (id,kind,env:vt@ype+) 
-html5_attr_out<html5_attr_void(kind,id)><env>( env ) 
+html5_attr_out<html5_attr_bool(kind,id)><env>( env ) 
   = {
 
       val () = 

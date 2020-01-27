@@ -430,7 +430,7 @@ stadef math_semantics = 31
 **)
 datasort html5_attr =
   | html5_attr      of (html5_attr_kind,int)
-  | html5_attr_void of (html5_attr_kind,int)
+  | html5_attr_bool of (html5_attr_kind,int)
   | html5_attr_data of (int,int) (** (data key, data value) **)
   
   (** Combinators **)

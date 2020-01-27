@@ -21,15 +21,15 @@ stadef align$(id) : html5_attr
 stadef alt$(id) : html5_attr 
    = html5_attr(_alt,id)
 stadef async$(id) : html5_attr 
-   = html5_attr(_async,id)
+   = html5_attr_bool(_async,id)
 stadef autocapitalize$(id) : html5_attr 
    = html5_attr(_autocapitalize,id)
 stadef autocomplete$(id) : html5_attr 
    = html5_attr(_autocomplete,id)
 stadef autofocus$(id) : html5_attr 
-   = html5_attr(_autofocus,id)
+   = html5_attr_bool(_autofocus,id)
 stadef autoplay$(id) : html5_attr 
-   = html5_attr(_autoplay,id)
+   = html5_attr_bool(_autoplay,id)
 stadef bgcolor$(id) : html5_attr 
    = html5_attr(_bgcolor,id)
 stadef border$(id) : html5_attr 
@@ -41,7 +41,7 @@ stadef challenge$(id) : html5_attr
 stadef charset$(id) : html5_attr 
    = html5_attr(_charset,id)
 stadef checked$(id) : html5_attr 
-   = html5_attr_void(_checked,id)
+   = html5_attr_bool(_checked,id)
 stadef cite$(id) : html5_attr 
    = html5_attr(_cite,id)
 stadef class$(id) : html5_attr 
@@ -63,7 +63,7 @@ stadef contenteditable$(id) : html5_attr
 stadef contextmenu$(id) : html5_attr 
    = html5_attr(_contextmenu,id)
 stadef controls$(id) : html5_attr 
-   = html5_attr(_controls,id)
+   = html5_attr_bool(_controls,id)
 stadef coords$(id) : html5_attr 
    = html5_attr(_coords,id)
 stadef crossorigin$(id) : html5_attr 
@@ -75,15 +75,15 @@ stadef data_kv$(k,v) : html5_attr
 stadef datetime$(id) : html5_attr 
    = html5_attr(_datetime,id)
 stadef default$(id) : html5_attr 
-   = html5_attr(_default,id)
+   = html5_attr_bool(_default,id)
 stadef defer$(id) : html5_attr 
-   = html5_attr(_defer,id)
+   = html5_attr_bool(_defer,id)
 stadef dir$(id) : html5_attr 
    = html5_attr(_dir,id)
 stadef dirname$(id) : html5_attr 
    = html5_attr(_dirname,id)
 stadef disabled$(id) : html5_attr 
-   = html5_attr(_disabled,id)
+   = html5_attr_bool(_disabled,id)
 stadef download$(id) : html5_attr 
    = html5_attr(_download,id)
 stadef draggable$(id) : html5_attr 
@@ -103,7 +103,7 @@ stadef headers$(id) : html5_attr
 stadef height$(id) : html5_attr 
    = html5_attr(_height,id)
 stadef hidden$(id) : html5_attr 
-   = html5_attr(_hidden,id)
+   = html5_attr_bool(_hidden,id)
 stadef high$(id) : html5_attr 
    = html5_attr(_high,id)
 stadef href$(id) : html5_attr 
@@ -119,7 +119,7 @@ stadef id$(id) : html5_attr
 stadef integrity$(id) : html5_attr 
    = html5_attr(_integrity,id)
 stadef ismap$(id) : html5_attr 
-   = html5_attr(_ismap,id)
+   = html5_attr_bool(_ismap,id)
 stadef itemprop$(id) : html5_attr 
    = html5_attr(_itemprop,id)
 stadef keytype$(id) : html5_attr 
@@ -135,7 +135,7 @@ stadef language$(id) : html5_attr
 stadef list$(id) : html5_attr 
    = html5_attr(_list,id)
 stadef loop$(id) : html5_attr 
-   = html5_attr(_loop,id)
+   = html5_attr_bool(_loop,id)
 stadef low$(id) : html5_attr 
    = html5_attr(_low,id)
 stadef manifest$(id) : html5_attr 
@@ -153,15 +153,15 @@ stadef method$(id) : html5_attr
 stadef min$(id) : html5_attr 
    = html5_attr(_min,id)
 stadef multiple$(id) : html5_attr 
-   = html5_attr(_multiple,id)
+   = html5_attr_bool(_multiple,id)
 stadef muted$(id) : html5_attr 
-   = html5_attr(_muted,id)
+   = html5_attr_bool(_muted,id)
 stadef name$(id) : html5_attr 
    = html5_attr(_name,id)
 stadef novalidate$(id) : html5_attr 
-   = html5_attr(_novalidate,id)
+   = html5_attr_bool(_novalidate,id)
 stadef open$(id) : html5_attr 
-   = html5_attr(_open,id)
+   = html5_attr_bool(_open,id)
 stadef optimum$(id) : html5_attr 
    = html5_attr(_optimum,id)
 stadef pattern$(id) : html5_attr 
@@ -177,13 +177,13 @@ stadef preload$(id) : html5_attr
 stadef radiogroup$(id) : html5_attr 
    = html5_attr(_radiogroup,id)
 stadef readonly$(id) : html5_attr 
-   = html5_attr(_readonly,id)
+   = html5_attr_bool(_readonly,id)
 stadef rel$(id) : html5_attr 
    = html5_attr(_rel,id)
 stadef required$(id) : html5_attr 
-   = html5_attr(_required,id)
+   = html5_attr_bool(_required,id)
 stadef reversed$(id) : html5_attr 
-   = html5_attr(_reversed,id)
+   = html5_attr_bool(_reversed,id)
 stadef rows$(id) : html5_attr 
    = html5_attr(_rows,id)
 stadef rowspan$(id) : html5_attr 
@@ -195,7 +195,7 @@ stadef scope$(id) : html5_attr
 stadef scoped$(id) : html5_attr 
    = html5_attr(_scoped,id)
 stadef selected$(id) : html5_attr 
-   = html5_attr(_selected,id)
+   = html5_attr_bool(_selected,id)
 stadef shape$(id) : html5_attr 
    = html5_attr(_shape,id)
 stadef size$(id) : html5_attr 

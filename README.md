@@ -89,9 +89,9 @@ is best.  Honestly, I wish I could use the same infix operators for all static l
 it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` in your scope to use infix ops while
 constructing proofs.
 
-The scope of this library is only HTML: attribute values, data attribute keys, comments, CSS and javascript are unescaped
-strings, and can break things.  The hopes are that this library is easy enough to extend
-to address these issues later on. 
+The scope of this library is only HTML: attribute values are escaped, but values are strings. 
+Note that data attribute keys, comments, CSS and javascript are unescaped
+strings, and can break things.  
 
 
 LICENSE: BSD3
