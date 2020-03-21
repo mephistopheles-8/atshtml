@@ -1,6 +1,6 @@
 # atshtml
 
-`atshtml` is a purely static html templating system for ATS2.  It is currently in 
+`atshtml` is a static html templating system for ATS2.  It is currently in 
 the proof-of-concept stages. 
 
 Inspired by Haskell libraries like `blaze`,`lucid`, etc, but different in that 
@@ -86,9 +86,7 @@ it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` in your scope to
 constructing proofs.
 
 The scope of this library is only HTML: attribute values are escaped, but values are strings. 
-Note that data attribute keys, comments, CSS and javascript are unescaped
-strings, and can break things.  
-
+This library does not ensure correctness of attribute values, CSS or JS.
 
 LICENSE: BSD3
 
