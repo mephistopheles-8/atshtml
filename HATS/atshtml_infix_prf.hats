@@ -9,20 +9,19 @@
 
 infixr :@:
 infixr :*:
-#define ENil ElmChildrenNil
+#define enil ElmChildrenNil
 #define :*: ElmChildrenCons
 
-#define ANil ElmAttrsNil
+#define anil ElmAttrsNil
 #define :@: ElmAttrsCons
 
 infixr dldt
 infixr dldd
 infixr dldiv
 
-#define dldt DlDt'
-#define dldd DlDd'
-#define dldiv DlDiv'
-#define dlnil DlNil
+#define dldt dldt'
+#define dldd dldd'
+#define dldiv dldiv'
 
 infixr rbphrs
 infixr rbrb
@@ -30,12 +29,12 @@ infixr rbrtc
 infixr rbrt
 infixr rbrp
 
-#define rbphrs RubyPhrasing'
-#define rbrb RubyRb'
-#define rbrtc RubyRtc'
-#define rbrt RubyRt'
-#define rbrp RubyRp'
-#define rbnil RubyNil
+#define rbphrs rubyphrasing'
+#define rbrb rubyrb'
+#define rbrtc rubyrtc'
+#define rbrt rubyrt'
+#define rbrp rubyrp'
+#define rbnil rubynil
 
 infixr tblcaption
 infixr tblcolgroup
@@ -44,36 +43,35 @@ infixr tbltbody
 infixr tbltr
 infixr tbltfoot
 
-#define tblcaption TableCaption'
-#define tblcolgroup TableColgroup'
-#define tblthead TableThead'
-#define tbltbody TableTbody'
-#define tbltr TableTr'
-#define tbltfoot TableTfoot'
-#define tblnil TableNil
+#define tblcaption tablecaption'
+#define tblcolgroup tablecolgroup'
+#define tblthead tablethead'
+#define tbltbody tabletbody'
+#define tbltr tabletr'
+#define tbltfoot tabletfoot'
+#define tblnil tablenil
 
 infixr mediaelm 
 infixr mediatrack 
 infixr mediasource
 
-#define mediaelm MediaElm
-#define mediatrack MediaTrack'
-#define mediasource MediaSource'
-#define medianil MediaNil
+#define mediatrack mediatrack'
+#define mediasource mediasource'
+#define medianil medianil
 
 infixr picimg 
 infixr picsource
 
-#define picimg PictureImg'
-#define picsource PictureSource'
-#define picnil PictureNil
+#define picimg pictureimg'
+#define picsource picturesource'
+#define picnil picturenil
 
 infixr fslegend 
 infixr fsflow
 
-#define fsflow FieldsetFlow'
-#define fslegend FieldsetLegend'
-#define fsnil FieldsetNil
+#define fsflow fieldsetflow'
+#define fslegend fieldsetlegend'
+#define fsnil fieldsetnil
 
 
  

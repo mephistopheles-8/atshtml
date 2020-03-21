@@ -36,10 +36,6 @@ markup while making progress on other things.
 I need to test the static verification a bit further, and see what the boundaries
 are on composability.  Some W3C rules may be missing.
 
-Note that comments, styles and script tags are not escaped, so be careful with 
-those. Attributes and text should be XSS-safe, but the values themselves are
-not verified.
-
 Not finished yet:
 - MathML/SVG are not yet implemented
 - Various tests.

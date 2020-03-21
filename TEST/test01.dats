@@ -23,69 +23,72 @@ implement main0 ()
     stadef countdown = 7
     stadef nothing_to_count = 8
     stadef show_count = 9
-  
+    
     prval pf = 
-      Document0(
-          ANil
-        ,     Title'{..}{page_title}() 
-          :*: Meta'( Charset${..}{utf8}() :@: ANil )
-          :*: Noscript'(ANil, Meta'(ANil) :*: ENil)
-          :*: ENil
-        , ANil
-        ,     H1'(ANil, Text'{..}{hello_world}() :*: ENil)
-          :*: Dl'(ANil, 
-                Dt'(ANil,ENil) dldt 
-                Dd'(ANil,ENil) dldd 
-                Dd'(ANil,ENil) dldd
-                (ANil, 
-                  Dt'(ANil,ENil) dldt 
-                  Dd'(ANil,ENil) dldd
-                  DlNil) dldiv
-                Dt'(ANil,ENil) dldt 
-                Dd'(ANil,ENil) dldd 
-                DlNil
+      document0(
+          anil
+        ,     title'{..}{page_title}() 
+          :*: meta'( charset${..}{utf8}() :@: anil )
+          :*: noscript'(anil, meta'(anil) :*: enil)
+          :*: enil
+        , anil
+        ,     h1'(anil, text'{..}{hello_world}() :*: enil)
+          :*: dl'(anil, 
+                dt'(anil,enil) dldt 
+                dd'(anil,enil) dldd 
+                dd'(anil,enil) dldd
+                (anil, 
+                  dt'(anil,enil) dldt 
+                  dd'(anil,enil) dldd
+                  dlnil) dldiv
+                dt'(anil,enil) dldt 
+                dd'(anil,enil) dldd 
+                dlnil
               )
-          :*: Ruby'(ANil, 
-                Rb'(ANil,ENil) rbrb
-                Span'(ANil,ENil) rbphrs
-                Rt'(ANil,ENil) rbrt 
-                Rp'(ANil,ENil) rbrp 
-                Rp'(ANil,ENil) rbrp 
-                Rtc'(ANil,ENil) rbrtc 
+          :*: ruby'(anil, 
+                rb'(anil,enil) rbrb
+                span'(anil,enil) rbphrs
+                rt'(anil,enil) rbrt 
+                rp'(anil,enil) rbrp 
+                rp'(anil,enil) rbrp 
+                rtc'(anil,enil) rbrtc 
                rbnil )
-          :*: Picture'(ANil,
-                Source'(ANil) picsource
-                Source'(ANil) picsource
-                Img'(ANil) picimg
-                picnil )
-          :*: Table'(ANil,
-                 Thead'(ANil,ENil) tblthead
-                 Tbody'(ANil,Tr'(ANil,Td'(ANil,ENil) :*: ENil) :*: ENil) tbltbody
-                 Tfoot'(ANil,ENil) tbltfoot
+          :*: picture'(anil,
+                source'(anil) picsource
+                source'(anil) picsource
+                img'(anil) picimg picnil )
+          :*: table'(anil,
+                 thead'(anil,enil) tblthead
+                 tbody'(anil,tr'(anil,td'(anil,enil) :*: enil) :*: enil) tbltbody
+                 tfoot'(anil,enil) tbltfoot
                  tblnil )
-          :*: Ul'(ANil,
-                Li'(ANil,Text'{..}{hello_world}() :*: ENil) 
-            :*: ENil
+          :*: ul'(anil,
+                li'(anil,text'{..}{hello_world}() :*: enil) 
+            :*: enil
              )
-          :*: Either'{..}{is_gt0}(
-                P'(ANil, Text'{..}{gt0_notify}() :*: ENil) :*: ENil
-              , P'(ANil, Text'{..}{lte0_notify}() :*: ENil) :*: ENil
+          :*: EITHER'{..}{is_gt0}(
+                p'(anil, text'{..}{gt0_notify}() :*: enil) :*: enil
+              , p'(anil, text'{..}{lte0_notify}() :*: enil) :*: enil
             )
-          :*:  Form'(Action${..}{utf8}() :@: ANil,
-                P'(ANil, Text'{..}{hello_world}() :*: ENil) :*: ENil
+          :*:  form'(action${..}{utf8}() :@: anil,
+                p'(anil, text'{..}{hello_world}() :*: enil) :*: enil
               )
-          :*: ENil
+          :*: enil
       )
       where {
         #include "./../HATS/atshtml_infix_prf.hats"
       }
 
+    stacst site_style : int
+    stacst site_bundle : int
+    stacst some_comment : int
     stadef document 
       = doctype'
       :*: html'(lang$(en) :@: anil
             , head'(anil,
                   meta'(charset$(utf8) :@: anil) 
-              :*: title'(page_title) 
+              :*: title'(page_title)
+              :*: style'(anil,site_style) 
               :*: enil
             ) 
           :*: body'(anil,
@@ -106,6 +109,8 @@ implement main0 ()
                   , countdown 
                  ) :*: enil
                 )
+             :*: script'(anil,site_bundle)
+             :*: comment'(some_comment)
              :*: enil
             )
           :*: enil
@@ -118,6 +123,26 @@ implement main0 ()
     implement
     html5$out<string><int>( x, sm ) = print!(sm)
 
+    implement
+    html5$style<site_style><int>( x )      = s2m("
+      html  {
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+      }
+      html::after {
+        content: \"</style>\";
+      }  
+    ")
+    implement
+    html5$script<site_bundle><int>( x )      = s2m("
+      (function () {
+        console.log(\"</script>\");
+        console.log(\"</scri\");
+      })()
+    ")
+    implement
+    html5$comment<some_comment><int>( x )      = s2m("-  before----after  -")
     implement
     html5$attr<utf8><int>( x )      = s2m("utf-8")
     implement
@@ -143,7 +168,9 @@ implement main0 ()
       = if x > 0 then (x := x - 1; true) else false
   
     var x : int = 20
+    val () = println!("\ndatasort:\n")
     val () = html5_elm_list_out<document><int>( x ) 
+    val () = println!("\nproof:\n")
     val () = html5_elm_list_out_verified<int>( pf | x ) 
 
 

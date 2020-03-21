@@ -482,7 +482,7 @@ html5$pop( e0, e1 ) =
   html5$free<env2>(e1)
 
 fun {env:vt@ype+}
-html5_out_escaped( env: &env, sm0: !strmixed0 ) : void 
+html5_out_escape_html( env: &env, sm0: !strmixed0 ) : void 
   =   {
       val _ 
         = strmixed_foreach(sm0, env ) where {
@@ -501,6 +501,93 @@ html5_out_escaped( env: &env, sm0: !strmixed0 ) : void
               }
         }
   } 
+
+extern
+fun {} html5_out_escape_replace$tok() : [n:pos] @(string n, size_t n)
+extern
+fun {} html5_out_escape_replace$rep() : [n:nat] string n
+
+fun {env:vt@ype+}
+html5_out_escape_replace_sing( env0: &env >> _, sm0: !strmixed0 ) : void 
+  =   {
+      vtypedef e0 = @{
+        ex = env
+      , cnt = sizeGte(0)
+      }
+      fun flush{n:nat}( str: string n, env: &e0 >> _ ) 
+          : void = ignoret(
+                string_foreach_env<e0>(str, env)
+            ) where {
+              implement
+              string_foreach$cont<e0>( c, e0 ) = e0.cnt != 0 
+              implement
+              string_foreach$fwork<e0>( c, e0 ) 
+                = (html5$out<char><env>(e0.ex,c); if cnt > 0 then (e0.cnt := cnt - 1))
+                  where {
+                    val cnt = e0.cnt
+                  } 
+          }
+      var env1 : e0 = @{
+        ex = env0
+      , cnt = i2sz(0)
+      }
+      (** FIXME: cleanup **)
+      val _ 
+        = strmixed_foreach<e0>(sm0, env1 ) where {
+            implement
+            strmixed_foreach$fwork<e0>( c, e0 ) 
+              = {
+                val @(scr,len) = html5_out_escape_replace$tok<>()
+                val i = e0.cnt
+                val () 
+                  = ifcase
+                    | i > 0 => { 
+                      val () 
+                        = if i < len - 1 
+                          then 
+                            if scr[i] = c
+                            then e0.cnt := e0.cnt + 1
+                            else (flush( scr, e0 ); html5$out<char><env>(e0.ex,c)) 
+                          else 
+                            if i < len 
+                            then if scr[i] = c
+                              then html5$out<string><env>(e0.ex,rep) where {
+                                  val rep = html5_out_escape_replace$rep<>()
+                                  val () = e0.cnt := i2sz(0) 
+                                }
+                              else (flush( scr, e0 ); html5$out<char><env>(e0.ex,c); e0.cnt := i2sz(0)) 
+                      }
+                    | i = 0 && c = scr[0] => ( e0.cnt := i2sz(1) )
+                    | _ => html5$out<char><env>(e0.ex, c)
+              }
+        }
+      val @(scr,len) = html5_out_escape_replace$tok<>()
+      // Dump any remaining characters
+      val () = flush(scr, env1 )
+      val () = env0 := env1.ex
+  } 
+
+fun {env:vt@ype+}
+html5_out_escape_style( env0: &env >> _, sm0: !strmixed0 ) : void 
+  =  html5_out_escape_replace_sing<env>(env0,sm0) where {
+     implement html5_out_escape_replace$tok<>() = @("</style>", i2sz(8)) 
+     implement html5_out_escape_replace$rep<>() = "\\3C \\2F style\\3E "
+  } 
+
+fun {env:vt@ype+}
+html5_out_escape_script( env0: &env >> _, sm0: !strmixed0 ) : void 
+  =  html5_out_escape_replace_sing<env>(env0,sm0) where {
+     implement html5_out_escape_replace$tok<>() = @("</script>", i2sz(9)) 
+     implement html5_out_escape_replace$rep<>() = "</sc\\ript>"
+  } 
+
+fun {env:vt@ype+}
+html5_out_escape_comment( env0: &env >> _, sm0: !strmixed0 ) : void 
+  =  html5_out_escape_replace_sing<env>(env0,sm0) where {
+     implement html5_out_escape_replace$tok<>() = @("--", i2sz(2)) 
+     implement html5_out_escape_replace$rep<>() = "&#45;&#45;"
+  } 
+
 
 implement (env:vt@ype+)
 html5_elm_out<html5_elm_doctype><env>( env ) 
@@ -546,7 +633,7 @@ html5_elm_out<html5_elm_script(attrs,id)><env>( env )
           html5$out<string><env>(env,script0); 
           html5_attr_list_out<attrs><env>(env);
           html5$out<string><env>(env,">");
-          html5$out<strmixed1><env>(env,txt);
+          html5_out_escape_script<env>(env,txt);
           html5$out<string><env>(env,"</");
           html5$out<string><env>(env,script0);
           html5$out<string><env>(env,">"); 
@@ -565,7 +652,7 @@ html5_elm_out<html5_elm_style(attrs,id)><env>( env )
           html5$out<string><env>(env,style0); 
           html5_attr_list_out<attrs><env>(env);
           html5$out<string><env>(env,">");
-          html5$out<strmixed1><env>(env,txt);
+          html5_out_escape_style<env>(env,txt);
           html5$out<string><env>(env,"</");
           html5$out<string><env>(env,style0);
           html5$out<string><env>(env,">"); 
@@ -580,7 +667,7 @@ html5_elm_out<html5_elm_comment(id)><env>( env )
       val txt = html5$comment<id><env>( env )
       val () = (
           html5$out<string><env>(env,"<!-- ");
-          html5$out<strmixed1><env>(env,txt);
+          html5_out_escape_comment<env>(env,txt);
           html5$out<string><env>(env," -->"); 
       )
       val   () = strmixed_free( txt )
@@ -592,7 +679,7 @@ html5_elm_out<html5_elm_text(id)><env>( env )
   = {
       val sm0
        = html5$text<id><env>( env )
-      val () = html5_out_escaped<env>( env, sm0 ) 
+      val () = html5_out_escape_html<env>( env, sm0 ) 
       val () = strmixed_free( sm0 )
   }
 
@@ -656,7 +743,7 @@ html5_attr_out<html5_attr(kind,id)><env>( env )
       val () = (
           html5$out<string><env>(env,attr);
           html5$out<string><env>(env,"=\"");
-          html5_out_escaped<env>(env,v);
+          html5_out_escape_html<env>(env,v);
           html5$out<string><env>(env,"\"");
       )
       val () = strmixed_free( v )
@@ -671,7 +758,7 @@ html5_attr_out<html5_attr_data(k,v)><env>( env )
           html5$out<string><env>(env,"data-");
           html5$out<strmixed1><env>(env,k);
           html5$out<string><env>(env,"=\"");
-          html5_out_escaped<env>(env,v);
+          html5_out_escape_html<env>(env,v);
           html5$out<string><env>(env,"\"");
       )
       val () = strmixed_free( k )

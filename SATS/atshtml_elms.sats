@@ -27,7 +27,7 @@ stadef link'(attrs) : html5_elm
 stadef meta'(attrs) : html5_elm 
    = html5_elm_void(meta_,attrs)
 stadef style'(attrs,id) : html5_elm 
-   = html5_elm_script(attrs,id)
+   = html5_elm_style(attrs,id)
 stadef body'(attrs,nodes) : html5_elm 
    = html5_elm_normal(body_,attrs,nodes)
 stadef article'(attrs,nodes) : html5_elm 
