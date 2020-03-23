@@ -1,5 +1,7 @@
 # atshtml
 
+__Note: This is a prototype__
+
 `atshtml` is a static html templating system for ATS2.  It is currently in 
 the proof-of-concept stages. 
 
