@@ -28,10 +28,7 @@ time to figure out a decent approach.  It turns out ATS2 supports static
 lambdas, which made things much easier than expected.
 
 While it seems excessive, the rules of HTML are quite complex.  It's good to have
-them embedded in the system that you are using.  While HTML5 validators work, things get
-tricky for dynamic sites.  I find that wading through the W3C spec is rarely a priority
-while tryinng to get things done. This library should provide a means of validating your
-markup while making progress on other things.
+them embedded in the system that you are using.  
 
 ## Status
 
@@ -45,29 +42,228 @@ Not finished yet:
 The `datasort` API should mostly work as expected, but the proof API may not cover
 all cases, and will be subject to gradual refinement over time.
 
-## How to Use It?
 
-Take a look at the `TEST` directory for examples.  Generally, the document
-structure is encoded with ids for data, and then a template implementation
-is required to "fill in the blanks."
+## Examples
 
-There is a proof eDSL which has constraints related to the W3C spec, and
-a datasort eDSL which is unverified.  Technically, you can serialize any
-`html5_elm_list` datasort.  The proofs are more strict, in case you want
-to do some verification on the document tree also.
+It's necessary to implement these three output functions, depending on how
+you wish to use the data:
 
-Much of the W3C spec is encoded, but there may be some missing pieces. 
-
-## Is it Usable?
+```ats2
+    (** example **)
+    absvt@ype myenv
  
-That depends: some people really don't like eDSLs.  And really, does HTML verification matter anyway?  :) 
+    implement 
+    html5$out<strmixed1><myenv>( x, sm ) = _
+    implement
+    html5$out<char><myenv>( x, sm ) = _
+    implement
+    html5$out<string><myenv>( x, sm ) = _
 
-The proof eDSL is a bit more complex than I would like, but all verification is opt-in.  The library does
-demonstrate a manner in which one might actuate a proof using datasorts and templates in ATS2. 
+```
 
-I do think it can be more concise than HTML, and any dynamic content is reusable after the 
-initial implementation (attribute values, text fields, etc).  The structure of a document can
-be preserved, even when, say, translating it to another language.
+With datasorts:
+
+```ats2
+    #include "atshtml/mylibies.hats"
+    #include "atshtml/HATS/atshtml_infix.hats"
+    #define ss2m string2mixed
+
+    stacst en : int
+    stacst utf8 : int
+    stacst page_title : int
+    stacst hello_world : int
+
+    stadef document 
+      = doctype'
+      :*: html'(lang$(en) :@: anil
+            , head'(anil,
+                  meta'(charset$(utf8) :@: anil) 
+              :*: title'(page_title)
+              :*: enil
+            ) 
+          :*: body'(anil,
+                 p'(anil, text'(hello_world) :*: enil)
+                :*: enil
+            )
+          :*: enil
+      ) :*: enil
+
+    implement (a)
+    html5$attr<utf8><a>( x )        = ss2m("utf-8")
+    implement (a)
+    html5$attr<en><a>( x )          = ss2m("en")
+    implement (a)
+    html5$text<page_title><a>( x )  = ss2m("Hello world")
+    implement (a)
+    html5$text<hello_world><a>( x ) = ss2m("Hello world")
+
+    var env : void = ()
+    val () = html5_elm_list_out<document><void>( env ) 
+
+```
+
+With proofs:
+
+```ats2
+    #include "atshtml/mylibies.hats"
+    #include "atshtml/HATS/atshtml_infix_prf.hats"
+    #define ss2m string2mixed
+
+    stacst en : int
+    stacst utf8 : int
+    stacst page_title : int
+    stacst hello_world : int
+
+    prval document 
+      = document1(
+            lang${..}{en}() :@: anil
+        ,   anil
+        ,   meta'(charset${..}{utf8}() :@: anil) 
+            :*: title'{..}{page_title}()
+            :*: enil
+        , anil
+        ,  p'(anil, text'{..}{hello_world}() :*: enil)
+           :*: enil
+        )
+
+    implement (a)
+    html5$attr<utf8><a>( x )        = ss2m("utf-8")
+    implement (a)
+    html5$attr<en><a>( x )          = ss2m("en")
+    implement (a)
+    html5$text<page_title><a>( x )  = ss2m("Hello world")
+    implement (a)
+    html5$text<hello_world><a>( x ) = ss2m("Hello world")
+
+    var env : void = ()
+    val () = html5_elm_list_out_verified<void>( document | env ) 
+
+```
+
+The basic user-implemented functions are:
+
+```ats2
+
+(** Attr value **)
+fun {id:int}{env:vt@ype+}
+  html5$attr( &env ) : strmixed1
+
+(** Attr void: true or false **)
+fun {id:int}{env:vt@ype+}
+  html5$attr_void( &env ) : bool
+
+(** Data attributes; key, value **)
+fun {id:int}{env:vt@ype+}
+  html5$attr_data_key( &env ) : strmixed1
+
+fun {id:int}{env:vt@ype+}
+  html5$attr_data_value( &env ) : strmixed1
+
+(** Script text **)
+fun {id:int}{env:vt@ype+}
+  html5$script( &env ) : strmixed1
+
+(** Comment text **)
+fun {id:int}{env:vt@ype+}
+  html5$comment( &env ) : strmixed1
+
+(** Text **)
+fun {id:int}{env:vt@ype+}
+  html5$text( &env ) : strmixed1
+
+(** Style Text **)
+fun {id:int}{env:vt@ype+}
+  html5$style( &env ) : strmixed1
+
+
+```
+
+Defining templates in terms of the pair `(id,vt@ype+)` preserves an open implementation.
+The `id` specifies a specific case, whereas the `vt@ype+` can be used to define
+a sensible default. 
+
+The language has several special words also.  As a convention, the `'` postfix is
+used for elements and the `$` postfix is used for attributes:
+
+```ats2
+
+(** For elements **)
+
+stadef EITHER'(xs0,xs1,id) : html5_elm
+  = html5_elm_either(xs0,xs1,id)
+
+stadef MANY'(xs0,id) : html5_elm
+  = html5_elm_many(xs0,enil,id)
+
+stadef MANY_OR'(xs0,xs1,id) : html5_elm
+  = html5_elm_many(xs0,xs1,id)
+
+stadef OPT'(xs0,id) : html5_elm
+  = html5_elm_opt(xs0,id)
+
+stadef WITH'(a,xs0,id) : html5_elm
+  = html5_elm_frame(a,xs0,id)
+
+
+(** For attributes **)
+
+stadef OPT$(xs0,id) : html5_attr 
+  = html5_attr_opt(xs0,id)
+
+stadef EITHER$(xs0,xs1,id) : html5_attr 
+  = html5_attr_either(xs0,xs1,id)
+
+```
+( The values exist as proofs also )
+
+The values at runtime depend on `env`, the state.  The
+following user-implemented functions determine logical branching:
+
+```ats2
+
+fun {id:int}{env:vt@ype+}
+  html5$attr$either_isleft( &env ) : bool
+
+fun {id:int}{env:vt@ype+}
+  html5$attr$opt_issome( &env ) : bool
+
+fun {id:int}{env:vt@ype+}
+  html5$elm$many_has_next( &env ) : bool
+
+fun {id:int}{env:vt@ype+}
+  html5$elm$either_isleft( &env ) : bool
+
+fun {id:int}{env:vt@ype+}
+  html5$elm$opt_issome( &env ) : bool
+
+``` 
+
+Finally, there is one special word that permits branching of
+state. 
+
+```ats2
+
+stadef WITH'(a,xs0,id) : html5_elm
+  = html5_elm_frame(a,xs0,id)
+
+```
+
+This basically conveys the existence of a function, `env -> a`, where
+`env` is the current env.  For the elm list `xs0`, a variable of type `a`
+will be treated as the state.  This permits reuse of static declarations.
+
+When using `WITH'`, the following templates need to be implemented:
+
+```ats2
+
+fun {id:int}{env,a:vt@ype+}
+  html5$push( &env ) : a
+
+fun {id:int}{env,a:vt@ype+}
+  html5$pop( &env, a ) : void
+
+```
+
 
 ## Caveats
 
@@ -83,9 +279,7 @@ template error messages in the C-compilation phase, which are tricky to debug.
 Constraint errors (eg, verifiying the context of an element) can be indiscernable. 
 
 I reuse some infix ops in the statics and for the proof system.  I figure the consistency
-is best.  Honestly, I wish I could use the same infix operators for all static list-like ops, but
-it doesn't seem posible.  Include `HATS/atshtml_infix_prf.hats` in your scope to use infix ops while
-constructing proofs.
+is best, but it requires separate `.hats` files. 
 
 The scope of this library is only HTML: attribute values are escaped, but values are strings. 
 This library does not ensure correctness of attribute values, CSS or JS.
