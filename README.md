@@ -372,7 +372,7 @@ html5$text<myenv_name><string>( str ) = ss2m(str)
 ```
 
 Note that the ability to define defaults allow us to create a default
-HTML represenation for all strings:
+HTML representation for all strings:
 
 For example:
 
