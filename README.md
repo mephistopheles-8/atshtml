@@ -140,7 +140,45 @@ With proofs:
 
 ```
 
-The basic user-implemented functions are:
+The purpose of the proof eDSL is experimental document verification.
+For example:
+
+```ats2
+    (** This will typecheck **)
+    prval document 
+      = document1(
+            lang${..}{en}() :@: anil
+        ,   anil
+        ,   meta'(charset${..}{utf8}() :@: anil) 
+            :*: title'{..}{page_title}()
+            :*: enil
+        , anil
+        ,  ul'(anil
+             , li'(anil, text'{..}{hello_world}() :*: enil) 
+               :*: enil 
+           ) :*: enil
+        )
+    
+    (** This will cause a constraint error **)
+    prval document 
+      = document1(
+            lang${..}{en}() :@: anil
+        ,   anil
+        ,   meta'(charset${..}{utf8}() :@: anil) 
+            :*: title'{..}{page_title}()
+            :*: enil
+        , anil
+        (** li in body tag is invalid **)
+        , li'(anil, text'{..}{hello_world}() :*: enil) 
+          :*: enil 
+        )
+
+
+```
+
+( Many cases have been implemented, but more tests need to be done )
+
+Document values are separate from document structure. The basic user-implemented functions are:
 
 ```ats2
 
