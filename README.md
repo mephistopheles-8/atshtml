@@ -302,6 +302,101 @@ fun {id:int}{env,a:vt@ype+}
 
 ```
 
+An example of a static declaration:
+
+```ats2
+
+abst@ype myenv
+
+stacst myenv_get : int
+stacst myenv_name : int
+
+stadef my_component = 
+    WITH'(myenv,
+       section'(
+            class$(myenv_class) :@: anil
+        , h1'(anil
+            , WITH'(string
+                , text'(myenv_name) :*: enil
+                , myenv_name) :*: enil 
+          ) :*: enil
+        ) :*: enil
+    , myenv_get)
+
+```
+
+Supposing we start with `myenv`, the first with
+will require an identity function (implemented as a default for
+`html5$push`) and a function to get a `string` for `myenv_name`.
+
+An example implementation is something like this : 
+
+```ats2
+
+absimpl myenv = @{
+        name = string
+    }
+
+implement (a)
+html5$attr<myenv_class><a>( env ) = ss2m("myenv-section") 
+
+implement
+html5$push<myenv_name><myenv,string>( env ) = env.name 
+
+implement 
+html5$text<myenv_name><string>( str ) = ss2m(str) 
+
+
+(** 
+    A default html5$push is implemented for identity functions of non-viewtypes:
+
+    implement (id,a:t@ype+)
+    html5$push<id><a,a>( e0 ) = e0
+
+
+    It's not necessary to implement the outer WITH', myenv -> myenv.
+ **)
+
+(** 
+    A default html5$pop is implemented as a no-op for non-viewtypes
+
+    implement (a:t@ype+) 
+    html5$free<a>( x ) = ()
+
+    implement {id}{env1,env2}
+    html5$pop( e0, e1 ) = 
+      html5$free<env2>(e1)
+
+ **)
+
+```
+
+Note that the ability to define defaults allow us to create a default
+HTML represenation for all strings:
+
+For example:
+
+```ats2
+
+stadef strrep(id) = WITH'(string, text'(id) :*: enil, id)
+
+implement (id) 
+html5$text<id><string>( str ) = ss2m(str) 
+
+
+(** This would allow my_component to be defined as **)
+
+stadef my_component = 
+    WITH'(myenv,
+       section'(
+            class$(myenv_class) :@: anil
+        , h1'(anil
+            , strrep(myenv_name) :*: enil 
+          ) :*: enil
+        ) :*: enil
+    , myenv_get)
+
+```
 
 ## Caveats
 
