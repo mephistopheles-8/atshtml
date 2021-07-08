@@ -989,7 +989,7 @@ and ElmChild(par:html5_tag,chi:html5_elm,cnst: html5_tag -> bool) =
   *)
   | {par: html5_tag | html5_content_flow(par) }
     {attrs:html5_attr_list}{nodes:html5_elm_list}
-    {cnst(table_)}{x:int | x != 2}
+    {cnst(table_)}{x:int}
     table'(par,table'(attrs,nodes),cnst) 
       of (ElmAttrs(table_,attrs), TableChildren(nodes,cnst,x))
   | {attrs:html5_attr_list}{nodes:html5_elm_list}
